@@ -1,4 +1,4 @@
-include
 lib
 glfw3.dll
 .vscode
+*.exe
