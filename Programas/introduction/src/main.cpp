@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <string>
 
 namespace fs = std::filesystem;
 
@@ -12,6 +13,9 @@ void processInput(GLFWwindow* window);
 void setupBasicShape();
 std::string loadShaderFromSource(const char* type, const char* name);
 void checkShaderCompilation(unsigned int shader);
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
 
 
 int main()
@@ -31,6 +35,7 @@ int main()
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); 
+    glfwSetKeyCallback(window,key_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -42,11 +47,10 @@ int main()
 
     setupBasicShape();
 
+
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
-        processInput(window);
-
         //Rendering commands 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -74,6 +78,10 @@ void setupBasicShape()
         0.5f, -0.5f, 0.0f,  // bottom right
         -0.5f, -0.5f, 0.0f,  // bottom left
         -0.5f,  0.5f, 0.0f   // top left 
+    };
+
+    float position[3] = {
+        0.5f, 0.5f, 0.0f
     };
 
     unsigned int indices[] = {
@@ -158,15 +166,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 } 
 
-void processInput(GLFWwindow *window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    //Input para modificar el tamaño del rectangulo
-
-
-}
-
 std::string loadShaderFromSource(const char* type, const char* name)
 {
 
@@ -193,4 +192,13 @@ void checkShaderCompilation(unsigned int shader){
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
+
+    if (key == GLFW_KEY_I && action == GLFW_PRESS)
+    std::cout << "Input Mode\n";
 }
