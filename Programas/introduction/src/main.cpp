@@ -9,7 +9,6 @@
 namespace fs = std::filesystem;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
 void setupBasicShape();
 std::string loadShaderFromSource(const char* type, const char* name);
 void checkShaderCompilation(unsigned int shader);
@@ -47,7 +46,6 @@ int main()
 
     setupBasicShape();
 
-
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
@@ -56,10 +54,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         
         //Rendering 
-        
         glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
-
-
         //
         glfwSwapBuffers(window);
         glfwPollEvents();    
@@ -70,6 +65,7 @@ int main()
     return 0;
 }
 
+
 void setupBasicShape()
 {
 
@@ -78,10 +74,6 @@ void setupBasicShape()
         0.5f, -0.5f, 0.0f,  // bottom right
         -0.5f, -0.5f, 0.0f,  // bottom left
         -0.5f,  0.5f, 0.0f   // top left 
-    };
-
-    float position[3] = {
-        0.5f, 0.5f, 0.0f
     };
 
     unsigned int indices[] = {
@@ -161,6 +153,7 @@ void setupBasicShape()
 
 }
 
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -197,8 +190,5 @@ void checkShaderCompilation(unsigned int shader){
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);
-
-    if (key == GLFW_KEY_I && action == GLFW_PRESS)
-    std::cout << "Input Mode\n";
+    glfwSetWindowShouldClose(window, true);    
 }
