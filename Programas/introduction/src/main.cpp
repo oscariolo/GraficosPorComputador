@@ -19,16 +19,25 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void setupBasicShape(unsigned int VBO,unsigned int VAO, unsigned int EBO)
 {
 
+    // float vertices[] = {
+    //     0.5f,  0.5f, 0.0f,  // top right
+    //     0.5f, -0.5f, 0.0f,  // bottom right
+    //     -0.5f, -0.5f, 0.0f,  // bottom left
+    //     -0.5f,  0.5f, 0.0f   // top left 
+    // };
+
     float vertices[] = {
-        0.5f,  0.5f, 0.0f,  // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left 
+        -0.25f,  0.5f, 0.0f,  // t1 top
+        -0.5f, 0.0f, 0.0f,  // t1 bottom left
+        0.0f, 0.0f, 0.0f,  //t1 bottom right
+        0.25f,  0.5f, 0.0f,   //t2 top right
+        0.5f, 0.0f,0.0f,
     };
 
+
     unsigned int indices[] = {
-        0,1,3,
-        1,2,3
+        0,1,2,
+        2,3,4
     };
 
     glGenBuffers(1, &VBO);
@@ -185,7 +194,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         
         //Rendering 
-        glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+        //glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+        glDrawArrays(GL_TRIANGLES,0,6);
         //
         glfwSwapBuffers(window);
         glfwPollEvents();    
