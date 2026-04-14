@@ -9,7 +9,6 @@
 namespace fs = std::filesystem;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void setupBasicShape();
 std::string loadShaderFromSource(const char* type, const char* name);
 void checkShaderCompilation(unsigned int shader);
 
@@ -17,56 +16,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 
 
-int main()
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); 
-    glfwSetKeyCallback(window,key_callback);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    } 
-
-    glViewport(0, 0, 800, 600);    
-
-    setupBasicShape();
-
-    //Render Loop
-    while(!glfwWindowShouldClose(window))
-    {
-        //Rendering commands 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        //Rendering 
-        glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
-        //
-        glfwSwapBuffers(window);
-        glfwPollEvents();    
-    }
-
-    glfwTerminate();
-    ///
-    return 0;
-}
-
-
-void setupBasicShape()
+void setupBasicShape(unsigned int VBO,unsigned int VAO, unsigned int EBO)
 {
 
     float vertices[] = {
@@ -80,9 +30,6 @@ void setupBasicShape()
         0,1,3,
         1,2,3
     };
-
-    //Ligamos VBO 
-    unsigned int VBO,VAO,EBO; //vertex buffer object
 
     glGenBuffers(1, &VBO);
     glGenBuffers(1,&EBO);
@@ -113,7 +60,11 @@ void setupBasicShape()
         (void*)0            // offset: where this attribute starts
     );
     glEnableVertexAttribArray(0);
-    
+
+}
+
+
+unsigned int setupShaders(){
 
     //Cargamos un shader de vertices
     std::string vertexCode = loadShaderFromSource("vertex","forward.shader");
@@ -144,15 +95,12 @@ void setupBasicShape()
     glAttachShader(shaderProgram,fragmentShader);
     glLinkProgram(shaderProgram);
 
-    //Usamos el shader generado
-    glUseProgram(shaderProgram);
-
     //Ya se genero el programa por lo que ya no necesitamos los shaders previos generados
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader); 
 
+    return shaderProgram;
 }
-
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -191,4 +139,67 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);    
+}
+
+
+int main()
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    if (window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); 
+    glfwSetKeyCallback(window,key_callback);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    } 
+
+    glViewport(0, 0, 800, 600);    
+
+    unsigned int VAO,VBO,EBO,shaderProgram;
+
+    setupBasicShape(VBO,VAO,EBO);
+    shaderProgram = setupShaders();
+
+    glUseProgram(shaderProgram);
+
+
+    //Render Loop
+    while(!glfwWindowShouldClose(window))
+    {
+        //Rendering commands 
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        //Rendering 
+        glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+        //
+        glfwSwapBuffers(window);
+        glfwPollEvents();    
+    }
+
+
+    //Elimina recursos de memoria
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteProgram(shaderProgram);
+
+
+    glfwTerminate();
+    ///
+    return 0;
 }
