@@ -16,7 +16,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 
 
-void setupBasicShape(unsigned int VBO,unsigned int VAO, unsigned int EBO)
+void setupBasicShape(unsigned int& VBO,unsigned int& VAO, unsigned int& EBO)
 {
 
     // float vertices[] = {
@@ -29,7 +29,8 @@ void setupBasicShape(unsigned int VBO,unsigned int VAO, unsigned int EBO)
     float vertices[] = {
         -0.25f,  0.5f, 0.0f,  // t1 top
         -0.5f, 0.0f, 0.0f,  // t1 bottom left
-        0.0f, 0.0f, 0.0f,  //t1 bottom right
+        0.0f, 0.0f, 0.0f,  //t1 bottom right //tecnicamente podemos dejar el vertice en 0 ya que al hacer drawArray en 6 vertices toma por defect (0,0,0)
+        0.0f, 0.0f, 0.0f,
         0.25f,  0.5f, 0.0f,   //t2 top right
         0.5f, 0.0f,0.0f,
     };
@@ -69,6 +70,53 @@ void setupBasicShape(unsigned int VBO,unsigned int VAO, unsigned int EBO)
         (void*)0            // offset: where this attribute starts
     );
     glEnableVertexAttribArray(0);
+
+}
+
+void setupConsequentTriangles(unsigned int VBOs[],unsigned int VAOs[]){
+    
+    float left_triangle[] = {
+        -0.25f,  0.5f, 0.0f,  // t1 top
+        -0.5f, 0.0f, 0.0f,  // t1 bottom left
+        0.0f, 0.0f, 0.0f,  //t1 bottom right //tecnicamente podemos dejar el vertice en 0 ya que al hacer drawArray en 6 vertices toma por defect (0,0,0)
+    };
+
+    float right_triange[] = {
+        0.0f, 0.0f, 0.0f,
+        0.25f,  0.5f, 0.0f,   //t2 top right
+        0.5f, 0.0f,0.0f,
+    };
+
+    glGenVertexArrays(2,VAOs);
+    glGenBuffers(2,VBOs);
+
+    glBindVertexArray(VAOs[0]);
+    glBindBuffer(GL_ARRAY_BUFFER,VBOs[0]);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(left_triangle),left_triangle,GL_STATIC_DRAW);
+    glVertexAttribPointer(
+        0,                  // attribute index (matches your vertex shader)
+        3,                  // number of components (x, y, z)
+        GL_FLOAT,           // data type
+        GL_FALSE,           // should OpenGL normalize values?
+        3 * sizeof(float),  // stride: total size of one vertex
+        (void*)0            // offset: where this attribute starts
+    );
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(VAOs[1]);
+    glBindBuffer(GL_ARRAY_BUFFER,VBOs[1]);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(right_triange),right_triange,GL_STATIC_DRAW);
+    glVertexAttribPointer(
+        0,                  // attribute index (matches your vertex shader)
+        3,                  // number of components (x, y, z)
+        GL_FLOAT,           // data type
+        GL_FALSE,           // should OpenGL normalize values?
+        3 * sizeof(float),  // stride: total size of one vertex
+        (void*)0            // offset: where this attribute starts
+    );
+
+    glEnableVertexAttribArray(0);
+
 
 }
 
@@ -179,8 +227,10 @@ int main()
     glViewport(0, 0, 800, 600);    
 
     unsigned int VAO,VBO,EBO,shaderProgram;
+    unsigned int VAOs[2],VBOs[2];
 
-    setupBasicShape(VBO,VAO,EBO);
+    //setupBasicShape(VBO,VAO,EBO);
+    setupConsequentTriangles(VBOs,VAOs);
     shaderProgram = setupShaders();
 
     glUseProgram(shaderProgram);
@@ -195,7 +245,11 @@ int main()
         
         //Rendering 
         //glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
-        glDrawArrays(GL_TRIANGLES,0,6);
+        glBindVertexArray(VAOs[0]);
+        glDrawArrays(GL_TRIANGLES,0,3);
+
+        glBindVertexArray(VAOs[1]);
+        glDrawArrays(GL_TRIANGLES,0,3);
         //
         glfwSwapBuffers(window);
         glfwPollEvents();    
