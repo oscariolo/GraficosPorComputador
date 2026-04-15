@@ -159,6 +159,49 @@ unsigned int setupShaders(){
     return shaderProgram;
 }
 
+void setupTriangleShaders(unsigned int &leftShader, unsigned int &rightShader){
+    //Cargamos un shader de vertices este es el mismo para ambos triangulos
+    std::string vertexCode = loadShaderFromSource("vertex","forward.shader");
+    const char* vertexShaderSource = vertexCode.c_str();
+    unsigned int vertexShader;
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader,1,&vertexShaderSource,NULL);
+    glCompileShader(vertexShader);
+
+    std::string fragmentCodeOrange = loadShaderFromSource("fragment","orange.shader");
+    const char* fragmentShaderSourceOrange = fragmentCodeOrange.c_str();
+    unsigned int fragmentShaderOrange;
+    fragmentShaderOrange = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShaderOrange,1,&fragmentShaderSourceOrange,NULL);
+    glCompileShader(fragmentShaderOrange);
+
+    std::string fragmentCodeYellow = loadShaderFromSource("fragment","yellow.shader");
+    const char* fragmentShaderSourceYellow = fragmentCodeYellow.c_str();
+    unsigned int fragmentShaderYellow;
+    fragmentShaderYellow = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShaderYellow,1,&fragmentShaderSourceYellow,NULL);
+    glCompileShader(fragmentShaderYellow);
+
+    //linkeamos el shader
+
+    //Generamos el programa shader para ligar los dos tipos de shader
+    leftShader = glCreateProgram();
+    glAttachShader(leftShader,vertexShader);
+    glAttachShader(leftShader,fragmentShaderOrange);
+    glLinkProgram(leftShader);
+
+    rightShader = glCreateProgram();
+    glAttachShader(rightShader,vertexShader);
+    glAttachShader(rightShader,fragmentShaderYellow);
+    glLinkProgram(rightShader);
+
+    glDeleteShader(fragmentShaderYellow); 
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShaderOrange); 
+
+
+}
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -227,13 +270,15 @@ int main()
     glViewport(0, 0, 800, 600);    
 
     unsigned int VAO,VBO,EBO,shaderProgram;
+    unsigned int left_shader,right_shader;
     unsigned int VAOs[2],VBOs[2];
 
     //setupBasicShape(VBO,VAO,EBO);
     setupConsequentTriangles(VBOs,VAOs);
-    shaderProgram = setupShaders();
+    //shaderProgram = setupShaders();
+    setupTriangleShaders(left_shader,right_shader);
 
-    glUseProgram(shaderProgram);
+
 
 
     //Render Loop
@@ -245,11 +290,15 @@ int main()
         
         //Rendering 
         //glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+        glUseProgram(left_shader);
         glBindVertexArray(VAOs[0]);
         glDrawArrays(GL_TRIANGLES,0,3);
+        glBindVertexArray(0);
 
+        glUseProgram(right_shader);
         glBindVertexArray(VAOs[1]);
         glDrawArrays(GL_TRIANGLES,0,3);
+        glBindVertexArray(0);
         //
         glfwSwapBuffers(window);
         glfwPollEvents();    
