@@ -44,7 +44,7 @@ void setupBasicShape(unsigned int* VBOs,unsigned int* VAOs)
         top_right[0],  top_right[1], 0.0f,  // top right
         bottom_right[0],bottom_right[1], 0.0f,  // bottom right
         bottom_left[0], bottom_left[1], 0.0f,  // bottom left
-        top_left[0],  top_right[1], 0.0f   // top left 
+        top_left[0],  top_left[1], 0.0f   // top left 
     };
 
     const float thickness = 0.2f;
