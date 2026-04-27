@@ -1,0 +1,56 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "Build (Windows)",
+			"command": "g++.exe",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"-std=c++17",
+				"-I${workspaceFolder}/include",
+				"${workspaceFolder}/introduction/src/*.cpp",
+				"${workspaceFolder}/glad.c",
+				"-L${workspaceFolder}/lib",
+				"-lglfw3dll",
+				"-lopengl32",
+				"-lgdi32",
+				"-o",
+				"${workspaceFolder}/cutable.exe"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": ["$gcc"],
+			"group": "build",
+			"detail": "Windows build"
+		},
+		{
+			"type": "cppbuild",
+			"label": "Build (Linux)",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-g",
+				"-std=c++17",
+				"-I${workspaceFolder}/include",
+				"${workspaceFolder}/src/*.cpp",
+				"${workspaceFolder}/src/glad.c",
+				"-lglfw",
+				"-lGL",
+				"-ldl",
+				"-lpthread",
+				"-o",
+				"${workspaceFolder}/zmmr"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": ["$gcc"],
+			"group": {
+				"kind": "build",
+            },
+			"detail": "Linux build"
+		}
+	]
+}
