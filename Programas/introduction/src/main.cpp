@@ -27,7 +27,7 @@ void askRectangleAttributes(float* startPosition, float* size){
     std::cin >> size[1];
 }
 
-void setupBasicShape(unsigned int* VBOs,unsigned int* VAOs)
+void setupBasicShape(unsigned int &VBOs,unsigned int &VAOs)
 {
     
     float startPosition[2];
@@ -39,33 +39,19 @@ void setupBasicShape(unsigned int* VBOs,unsigned int* VAOs)
     float bottom_left[2] = {startPosition[0],startPosition[1]};
     float top_left[2] = {startPosition[0],startPosition[1]+size[1]};
 
+    //Border colors red green blue yellow and red
+
+    float red[3] = {1.0f,0.0f,0.0f};
+    float green[3] = {0.0f,1.0f,0.0f};
+    float blue[3] = {0.0f,0.0f,1.0f};
+    float yellow[3] = {1.0f,1.0f,0.0f};
 
     float rectangle[] = {
-        top_right[0],  top_right[1], 0.0f,  // top right
-        bottom_right[0],bottom_right[1], 0.0f,  // bottom right
-        bottom_left[0], bottom_left[1], 0.0f,  // bottom left
-        top_left[0],  top_left[1], 0.0f   // top left 
+        top_right[0],  top_right[1], 0.0f, red[0], red[1], red[2],  // top right
+        bottom_right[0],bottom_right[1], 0.0f, green[0], green[1], green[2],  // bottom right
+        bottom_left[0], bottom_left[1], 0.0f, blue[0], blue[1], blue[2],  // bottom left
+        top_left[0],  top_left[1], 0.0f, yellow[0], yellow[1], yellow[2]   // top left 
     };
-
-    const float thickness = 0.2f;
-
-    float border[12];
-    const float signX[4] = { 1.0f,  1.0f, -1.0f, -1.0f}; // TR, BR, BL, TL
-    const float signY[4] = { 1.0f, -1.0f, -1.0f,  1.0f}; // TR, BR, BL, TL
-
-    for (int i = 0; i < 12; ++i)
-    {
-        int vertex = i / 3;   // 0..3
-        int coord  = i % 3;   // 0=x, 1=y, 2=z
-
-        if (coord == 0) {
-            border[i] = rectangle[i] + signX[vertex] * thickness;
-        } else if (coord == 1) {
-            border[i] = rectangle[i] + signY[vertex] * thickness;
-        } else {
-            border[i] = rectangle[i]; // keep z unchanged
-        }
-    }
 
     unsigned int indices[] = {
         0,1,3,
@@ -74,15 +60,15 @@ void setupBasicShape(unsigned int* VBOs,unsigned int* VAOs)
 
     unsigned int EBO;
 
-    glGenBuffers(2, VBOs);
+    glGenBuffers(1, &VBOs);
     glGenBuffers(1,&EBO);
     
     //VAO debe ser creado antes para recordar estado de los VBOs
-    glGenVertexArrays(2,VAOs);
+    glGenVertexArrays(1, &VAOs);
 
 
-    glBindVertexArray(VAOs[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+    glBindVertexArray(VAOs);
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs);
     glBufferData(GL_ARRAY_BUFFER, sizeof(rectangle), rectangle, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
@@ -93,38 +79,26 @@ void setupBasicShape(unsigned int* VBOs,unsigned int* VAOs)
         3,                  // number of components (x, y, z)
         GL_FLOAT,           // data type
         GL_FALSE,           // should OpenGL normalize values?
-        3 * sizeof(float),  // stride: total size of one vertex
+        6 * sizeof(float),  // stride: total size of one vertex
         (void*)0            // offset: where this attribute starts
     );
     glEnableVertexAttribArray(0);
 
-    //VBO y VAO para el borde
-    glBindVertexArray(VAOs[1]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(border), border, GL_STATIC_DRAW);
-
-    //EBO es creado y copiamos los indices al buffer 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
-
-
-    //Toma en cuenta el ultimo VBO asignado al GL_ARRAY_BUFFER
-    //LINKING, COMO OPENGL INTERPRETA INPUT DATA PARA LOS SHADERS DESDE LA DATA DE VERTICES
-    // position attribute
-    glVertexAttribPointer(
-        0,                  // attribute index (matches your vertex shader)
+        glVertexAttribPointer(
+        1,                  // attribute index (matches your vertex shader)
         3,                  // number of components (x, y, z)
         GL_FLOAT,           // data type
         GL_FALSE,           // should OpenGL normalize values?
-        3 * sizeof(float),  // stride: total size of one vertex
-        (void*)0            // offset: where this attribute starts
+        6 * sizeof(float),  // stride: total size of one vertex
+        (void*)(3 * sizeof(float))  // offset: where this attribute starts
     );
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
 
 }
 
 
-void setupShaders(unsigned int* shaders){
+void setupShaders(unsigned int &shaders){
     //Cargamos un shader de vertices
     std::string vertexCode = loadShaderFromSource("vertex","forward.shader");
     const char* vertexShaderSource = vertexCode.c_str();
@@ -147,32 +121,15 @@ void setupShaders(unsigned int* shaders){
 
     checkShaderCompilation(fragmentShader1);
 
-    //Shader del borde
-    std::string fragmentCode2 = loadShaderFromSource("fragment","yellow.shader");
-    const char* fragmentShaderSource2 = fragmentCode2.c_str();
-
-    unsigned int fragmentShader2;
-    fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader2,1,&fragmentShaderSource2,NULL);
-    glCompileShader(fragmentShader2);
-
-    checkShaderCompilation(fragmentShader2);
-
     //Generamos el programa shader para ligar los dos tipos de shader
-    shaders[0] = glCreateProgram();
-    glAttachShader(shaders[0],vertexShader);
-    glAttachShader(shaders[0],fragmentShader1);
-    glLinkProgram(shaders[0]);
-
-    shaders[1] = glCreateProgram();
-    glAttachShader(shaders[1],vertexShader);
-    glAttachShader(shaders[1],fragmentShader2);
-    glLinkProgram(shaders[1]);
+    shaders = glCreateProgram();
+    glAttachShader(shaders,vertexShader);
+    glAttachShader(shaders,fragmentShader1);
+    glLinkProgram(shaders);
 
     //Ya se genero el programa por lo que ya no necesitamos los shaders previos generados
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader1); 
-    glDeleteShader(fragmentShader2);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -241,8 +198,8 @@ int main()
 
     glViewport(0, 0, 800, 600);    
 
-    unsigned int VBOs[2],VAOs[2],shaders[2];
-    setupBasicShape(VBOs,VAOs);
+    unsigned int VBO,VAO,shaders;
+    setupBasicShape(VBO,VAO);
     setupShaders(shaders);
 
     //Render Loop
@@ -251,14 +208,9 @@ int main()
         //Rendering commands 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        
-        //Rendering
-        glUseProgram(shaders[1]); 
-        glBindVertexArray(VAOs[1]);
-        glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
 
-        glUseProgram(shaders[0]);
-        glBindVertexArray(VAOs[0]);
+        glUseProgram(shaders);
+        glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
 
         //
