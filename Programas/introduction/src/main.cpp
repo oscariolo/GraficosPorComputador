@@ -1,16 +1,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "utils/shader_utils.h"
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <filesystem>
 #include <string>
 
-namespace fs = std::filesystem;
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-std::string loadShaderFromSource(const char* type, const char* name);
-void checkShaderCompilation(unsigned int shader);
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
@@ -100,7 +95,7 @@ void setupBasicShape(unsigned int &VBOs,unsigned int &VAOs)
 
 void setupShaders(unsigned int &shaders){
     //Cargamos un shader de vertices
-    std::string vertexCode = loadShaderFromSource("vertex","forward.shader");
+    std::string vertexCode = shader_utils::loadShaderFromSource(std::filesystem::path(__FILE__).parent_path(), "vertex", "forward.shader");
     const char* vertexShaderSource = vertexCode.c_str();
 
     unsigned int vertexShader;
@@ -108,10 +103,10 @@ void setupShaders(unsigned int &shaders){
     glShaderSource(vertexShader,1,&vertexShaderSource,NULL);
     glCompileShader(vertexShader);
 
-    checkShaderCompilation(vertexShader);
+    shader_utils::checkShaderCompilation(vertexShader);
 
     //Cargamos el shader de fragmentos
-    std::string fragmentCode1 = loadShaderFromSource("fragment","orange.shader");
+    std::string fragmentCode1 = shader_utils::loadShaderFromSource(std::filesystem::path(__FILE__).parent_path(), "fragment", "orange.shader");
     const char* fragmentShaderSource = fragmentCode1.c_str();
 
     unsigned int fragmentShader1;
@@ -119,7 +114,7 @@ void setupShaders(unsigned int &shaders){
     glShaderSource(fragmentShader1,1,&fragmentShaderSource,NULL);
     glCompileShader(fragmentShader1);
 
-    checkShaderCompilation(fragmentShader1);
+    shader_utils::checkShaderCompilation(fragmentShader1);
 
     //Generamos el programa shader para ligar los dos tipos de shader
     shaders = glCreateProgram();
@@ -136,34 +131,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 } 
-
-std::string loadShaderFromSource(const char* type, const char* name)
-{
-
-    fs::path shaderRoot = fs::path(__FILE__).parent_path() / "shaders";
-    fs::path shaderPath = shaderRoot / type / name;
-
-    std::ifstream file(shaderPath);
-    if (!file.is_open())
-    {
-        std::cerr << "Failed to open shader file: " << shaderPath << std::endl;
-        return "";
-    }
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-void checkShaderCompilation(unsigned int shader){
-    int success;
-    char infoLog[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-}
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
