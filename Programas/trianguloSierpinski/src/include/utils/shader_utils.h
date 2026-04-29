@@ -39,8 +39,8 @@ inline void checkShaderCompilation(unsigned int shader)
 inline void sourceShader(const char* name,unsigned int &shader, GLenum shaderType)
 {
     const char* typeStr = (shaderType == GL_VERTEX_SHADER) ? "vertex" : "fragment";
-    //Si no da shaderSource se asume el mismo path base 
-    std::string shaderCode = shader_utils::loadShaderFromSource(std::filesystem::path(__FILE__).parent_path().parent_path(), typeStr, name);
+    //Use the runtime working directory (where the program is executed from)
+    std::string shaderCode = loadShaderFromSource(std::filesystem::current_path(), typeStr, name);
     const char* shaderSource = shaderCode.c_str();
     shader = glCreateShader(shaderType);
     glShaderSource(shader,1,&shaderSource,NULL);

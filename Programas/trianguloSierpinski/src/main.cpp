@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "utils/shader_utils.h"
+#include "include/utils/shader_utils.h"
+#include "include/trianguloSerpinski.h"
 #include <iostream>
 #include <filesystem>
 #include <string>
@@ -15,46 +16,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);    
 }
-
-void baseTriangle(unsigned int &VBO, unsigned int &VAO)
-{
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,  // left  
-         0.5f, -0.5f, 0.0f,  // right 
-         0.0f,  0.5f, 0.0f   // top   
-    };
-
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-}
-
-void generatePoint(unsigned int &VBO, unsigned int &VAO)
-{
-    float vertices[] = {
-        0.0f, 0.0f, 0.0f
-    };
-
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-}   
-
-
 
 
 void setUpShaders(unsigned int &shaders)
@@ -101,11 +62,12 @@ int main()
 
     glViewport(0, 0, 800, 600);    
 
-    unsigned int triangleVBO,triangleVAO,shaders;
-    unsigned int pointVBO,pointVAO;
-    baseTriangle(triangleVBO,triangleVAO);
-    generatePoint(pointVBO,pointVAO);
-    setUpShaders(shaders); 
+    unsigned int shaders;
+    setUpShaders(shaders);
+
+    TrianguloSerpinski triangleObject;
+    triangleObject.bindTriangle();
+    triangleObject.bindPoints();
 
     //Render Loop
     while(!glfwWindowShouldClose(window))
@@ -113,15 +75,20 @@ int main()
         //Rendering commands 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        
+        glBindVertexArray(triangleObject.triangleVAO); 
         glUseProgram(shaders);
-        glBindVertexArray(triangleVAO); 
         glDrawArrays(GL_LINE_LOOP,0,3);
 
-        glBindVertexArray(pointVAO);
-        glDrawArrays(GL_POINTS,0,1);
+        glBindVertexArray(triangleObject.pointsVAO);
+        glUseProgram(shaders);
+        glDrawArrays(GL_POINTS,0,3);
+
+        triangleObject.bindNextPoint();
 
         glfwSwapBuffers(window);
-        glfwPollEvents();    
+        glfwPollEvents();
+    
     }
 
     glfwTerminate();

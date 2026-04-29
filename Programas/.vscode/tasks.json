@@ -11,6 +11,7 @@
 				"-std=c++17",
 				"-I${workspaceFolder}/include",
 				"${workspaceFolder}/trianguloSierpinski/src/*.cpp",
+				"${workspaceFolder}/trianguloSierpinski/src/include/*.cpp",
 				"${workspaceFolder}/glad.c",
 				"-L${workspaceFolder}/lib",
 				"-lglfw3dll",
