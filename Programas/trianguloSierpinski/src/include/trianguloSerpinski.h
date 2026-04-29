@@ -16,10 +16,7 @@ public:
 private:
     float triangleVertices[9];
     float lastPoint[3];
-    float pointsVertex[30000];
-
-    int nextVertexIndex;
-
+    int MAX_VERTICES = 30000;
     void generateNextPoint();
 };
 
