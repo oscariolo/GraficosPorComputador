@@ -82,7 +82,7 @@ int main()
 
         glBindVertexArray(triangleObject.pointsVAO);
         glUseProgram(shaders);
-        glDrawArrays(GL_POINTS,0,3);
+        glDrawArrays(GL_POINTS,0,triangleObject.numVertex);
 
         triangleObject.bindNextPoint();
 

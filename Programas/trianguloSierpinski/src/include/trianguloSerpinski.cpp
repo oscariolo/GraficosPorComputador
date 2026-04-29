@@ -4,7 +4,7 @@
 #include "trianguloSerpinski.h"
 
 TrianguloSerpinski::TrianguloSerpinski()
-        : triangleVBO(0), triangleVAO(0), pointsVBO(0), pointsVAO(0),
+        : triangleVBO(0), triangleVAO(0), pointsVBO(0), pointsVAO(0),nextVertexIndex(0),numVertex(0),
 
             triangleVertices{
                 -0.5f, -0.5f, 0.0f,
@@ -58,7 +58,7 @@ void TrianguloSerpinski::bindPoints()
     glBindVertexArray(pointsVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER,pointsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(lastPoint), lastPoint, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(lastPoint), lastPoint, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
@@ -67,13 +67,19 @@ void TrianguloSerpinski::bindPoints()
 
 void TrianguloSerpinski::bindNextPoint()
 {
-
+    if(nextVertexIndex + 1 >= sizeof(pointsVertex)/sizeof(pointsVertex[0])){
+        return;
+    }
     generateNextPoint();
+    pointsVertex[nextVertexIndex] = lastPoint[0];
+    pointsVertex[nextVertexIndex+1] = lastPoint[1];
+    pointsVertex[nextVertexIndex+2] = lastPoint[2];
     glBindBuffer(GL_ARRAY_BUFFER,pointsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(lastPoint), lastPoint, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pointsVertex), pointsVertex, GL_STREAM_DRAW);
 
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
-    
+    nextVertexIndex = nextVertexIndex + 3;
+    numVertex = numVertex + 1;
 
 }
