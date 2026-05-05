@@ -67,8 +67,8 @@ int main()
     
     GridSphere sphere;
     sphere.setShape();
-    sphere.bindSphere();
-    glPointSize(2.0f);
+    sphere.setUpBuffers();
+    glPointSize(4.0f);
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
@@ -78,10 +78,12 @@ int main()
 
         glBindVertexArray(sphere.VAO);
         glUseProgram(shaders);
-        glDrawArrays(GL_POINTS,0,sphere.vertices.size()/3);//graficamos solo los paralelos
-
-
         
+        for(int i=0;i<=sphere.NUM_LINES;i++){ 
+             glDrawElements(GL_LINE_STRIP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(i*sphere.NUM_LINES*sizeof(unsigned int)));//meridian lines
+             glDrawElements(GL_LINE_LOOP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)((i+sphere.NUM_LINES)*sphere.NUM_LINES*sizeof(unsigned int))); //paralel lines
+        }
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     
