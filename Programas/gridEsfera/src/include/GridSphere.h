@@ -4,19 +4,21 @@
 
 class GridSphere{
     public:
-        GridSphere();
         void setShape();
         void bindSphere();
         unsigned int VAO;
         unsigned int VBO;
-        std::vector<float> meridianVertices;
-        std::vector<float> paralelVertices;
+        unsigned int EBO;
+        std::vector<float> vertices;
+        unsigned int parallelCount;
+
 
     private:
         float center[3] = {0.0f,0.0f,0.0f};
-        float radius = 0.4;
-        static constexpr int VERTEX_SIZE = 10;
-        static constexpr int NUM_LINES = 5;
+        float radius = 0.7;
+        static constexpr int NUM_LINES = 15;
+        static constexpr int NUM_VERTICES = NUM_LINES * 2 * 3;
+        static constexpr double PI = 3.14159265358979323846;
 
 
         

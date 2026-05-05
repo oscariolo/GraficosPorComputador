@@ -36,6 +36,7 @@
 				"-std=c++17",
 				"-I${workspaceFolder}/include",
 				"${workspaceFolder}/gridEsfera/src/*.cpp",
+				"${workspaceFolder}/gridEsfera/src/include/*.cpp",
 				"${workspaceFolder}/glad.c",
 				"-lglfw",
 				"-lGL",

@@ -68,7 +68,7 @@ int main()
     GridSphere sphere;
     sphere.setShape();
     sphere.bindSphere();
-
+    glPointSize(2.0f);
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
@@ -78,7 +78,7 @@ int main()
 
         glBindVertexArray(sphere.VAO);
         glUseProgram(shaders);
-        glDrawArrays(GL_LINE_LOOP,0,sphere.paralelVertices.size()/3);
+        glDrawArrays(GL_POINTS,0,sphere.vertices.size()/3);//graficamos solo los paralelos
 
 
         

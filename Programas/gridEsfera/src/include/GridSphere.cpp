@@ -8,17 +8,13 @@ float x_coordinate(float center_x, float radius, float theta,float alpha){
 };
 
 float y_coordinate(float center_y, float radius, float theta,float alpha){
-    return center_y + radius*sin(theta)*sin(alpha);
+    return center_y + radius*cos(theta);
 };
 
-float z_coordinate(float center_z, float radius, float theta){
-    return center_z + radius*cos(theta);
+float z_coordinate(float center_z, float radius, float theta,float alpha){
+    return center_z + radius*sin(theta)*sin(alpha);
 };
 
-GridSphere::GridSphere():meridianVertices(VERTEX_SIZE*NUM_LINES*3),paralelVertices(VERTEX_SIZE*NUM_LINES*3)
-{
-
-}
 
 
 void GridSphere::setShape(){
@@ -27,22 +23,35 @@ void GridSphere::setShape(){
     //los polos se generan a partir del ultimo vertice que encaja con los meridianos? o de los paralelos?
     //vertice polo es cuando el theta es 180 o 0
 
+    vertices.clear();
 
+    const int N = NUM_LINES; // same count for meridians and parallels
 
-    const int step = 360/VERTEX_SIZE; //La separación segun cantidad de vertices es divido de una rotación completa a la esfera (esto sirve solo para paralelo)
+    const float meridianStep = 2.0f * PI / N;      // alpha
+    const float parallelStep = PI / (N + 1.0f);    // theta (skip poles)
 
-    int theta = 0;
-    int alpha = 0;
-    for(size_t i = 0; i + 2 < paralelVertices.size(); i += 3){
-        paralelVertices[i] = x_coordinate(center[0],radius,theta,alpha);
-        paralelVertices[i+1] = y_coordinate(center[1],radius,theta,alpha);
-        paralelVertices[i+2] = z_coordinate(center[2],radius,theta);
-        alpha += step;
-        if(alpha >= 360){
-            alpha = 0;
-            theta+=step;
-        };
+    //insert the poles
+    vertices.push_back(x_coordinate(center[0], radius, 0.0f, 0.0f)); // North pole
+    vertices.push_back(y_coordinate(center[1], radius, 0.0f, 0.0f));
+    vertices.push_back(z_coordinate(center[2], radius, 0.0f, 0.0f));
+
+    vertices.push_back(x_coordinate(center[0], radius, PI, 0.0f)); // South pole
+    vertices.push_back(y_coordinate(center[1], radius, PI, 0.0f));
+    vertices.push_back(z_coordinate(center[2], radius, PI, 0.0f));
+
+    for (int i = 1; i <= N; ++i) {                 // parallels
+        float theta = i * parallelStep;
+
+        for (int j = 0; j < N; ++j) {              // meridians
+            float alpha = j * meridianStep;
+
+            vertices.push_back(x_coordinate(center[0], radius, theta, alpha));
+            vertices.push_back(y_coordinate(center[1], radius, theta, alpha));
+            vertices.push_back(z_coordinate(center[2], radius, theta, alpha));
+        }
     }
+
+
 
 };
 
@@ -53,7 +62,7 @@ void GridSphere::bindSphere(){
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*paralelVertices.size(), paralelVertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
