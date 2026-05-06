@@ -92,13 +92,13 @@ int main()
     GridSphere sphere;
     sphere.setShape();
     sphere.setUpBuffers();
-    glPointSize(4.0f);
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        if(leftMouseButtonPressed)
+        if(leftMouseButtonPressed) //control de movimiento con mouse para rotar la esfera
+        
         {
             double currX, currY;
             glfwGetCursorPos(window, &currX, &currY);
@@ -111,7 +111,7 @@ int main()
 
             float drag = sqrtf(dx * dx + dy * dy);
             if (drag > 0.0001f)
-            {
+            {//transformacion es mas directo que estar moneando vertices
                 glm::vec3 axis = glm::normalize(glm::vec3(dy, dx, 0.0f));
                 const float sensitivity = 0.005f;
                 float angle = sensitivity * drag;

@@ -35,7 +35,7 @@ void GridSphere::setShape(){
 
     unsigned int idx=1;
 
-    for (int i = 1; i <= N; ++i) {     // move from pole to pole (incluye los polos)
+    for (int i = 1; i <= N; ++i) {     // move from pole to polee
         
         float alpha = i * alphaStep;
 
@@ -70,11 +70,11 @@ void GridSphere::setUpIndices(){
 
     for(int i = 0; i<N; ++i){
         for(int j = 0; j<N; ++j){
-            meridianIndices.push_back((j*N+i) + 1);
+            meridianIndices.push_back((j*N+i) + 1); //Las indices del meridianos son la "transpuesta" del de paralelos (saltando uno por los vertices)
         }
     }
 
-    // north fan: center (north pole), first ring, then close with first ring vertex
+    // north fan: empieza en polo y toma indices consecuentes
     const unsigned int northPoleIndex = 0;
     const unsigned int firstRingStart = 1;
     polarIndices.push_back(northPoleIndex);
@@ -86,7 +86,7 @@ void GridSphere::setUpIndices(){
         }
     }
 
-    // south fan: center (south pole), last ring, then close with first last-ring vertex
+    // el ultimo indice es el vertice que empieza el fan
     const unsigned int southPoleIndex = N * N + 1;
     const unsigned int lastRingStart = (N - 1) * N + 1;
     polarIndices.push_back(southPoleIndex);
