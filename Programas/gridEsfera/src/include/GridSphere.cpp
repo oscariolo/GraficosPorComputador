@@ -31,39 +31,26 @@ void GridSphere::setShape(){
 
     unsigned int indexCount = 0;
 
-    for (int i = 0; i <= N; ++i) {     // move from pole to pole      
+    for (int i = 0; i < N; ++i) {     // move from pole to pole      
         
         float alpha = i * alphaStep;
 
         for (int j = 0; j < N; ++j) {   // move around the sphere
 
             float theta = j * thetaStep;
+
             vertices.push_back(x_coordinate(center[0], radius, theta, alpha));
             vertices.push_back(y_coordinate(center[1], radius, theta, alpha));
             vertices.push_back(z_coordinate(center[2], radius, theta, alpha));
 
-            if((i==0 && polarIndices.empty())|| i == N-1){ //primer punto de la esfera en el polo y ultimo punto deben escapar del bucle
-                polarIndices.push_back(indexCount);
-                indexCount++;
-                break;//no necesita seguir aumentando vertices en polos
-            }
-
-            if(i==1 || i==N-2){//outer north and south ring
-                polarIndices.push_back(indexCount);
-            }
-
             parallelIndices.push_back(indexCount); 
-            meridianIndices.push_back(j* N + i);
+            //meridianIndices.push_back(j* N + i);
             indexCount++;
 
         }
         
     }
     
-    //std::cout << polarIndices.size();
-    std::cout << meridianIndices.size();
-    std::cout << meridianIndices[0];
-
     setUpIndices();
 
 
@@ -71,9 +58,12 @@ void GridSphere::setShape(){
 
 void GridSphere::setUpIndices(){
 
-    indices.insert(indices.end(),meridianIndices.begin(),meridianIndices.end());
+    //indices.insert(indices.end(),meridianIndices.begin(),meridianIndices.end());
+    // indexMeridianStartOffset = 0;
     indices.insert(indices.end(),parallelIndices.begin(),parallelIndices.end());
-    //indices.insert(indices.end(),polarIndices.begin(),polarIndices.end());
+    //indexParalelStartOffset = (meridianIndices.size()*sizeof(GLuint));
+    // indices.insert(indices.end(),polarIndices.begin(),polarIndices.end());
+    // indexPolarStartOffset = (meridianIndices.size()*sizeof(GLuint) + parallelIndices.size()*sizeof(GLuint));
 
 
 }

@@ -5,6 +5,9 @@
 #include <iostream>
 #include <filesystem>
 #include <string>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -76,12 +79,19 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glm::mat4 view = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        GLint viewLoc = glGetUniformLocation(shaders, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
         glBindVertexArray(sphere.VAO);
         glUseProgram(shaders);
         
+        // glDrawElements(GL_TRIANGLE_FAN,sphere.NUM_LINES+1,GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset));
+        // glDrawElements(GL_TRIANGLE_FAN,sphere.NUM_LINES+1,GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset + (sphere.NUM_LINES+1)*sizeof(GLuint)));
         for(int i=0;i<=sphere.NUM_LINES;i++){ 
-             glDrawElements(GL_LINE_STRIP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(i*sphere.NUM_LINES*sizeof(unsigned int)));//meridian lines
-             glDrawElements(GL_LINE_LOOP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)((i+sphere.NUM_LINES)*sphere.NUM_LINES*sizeof(unsigned int))); //paralel lines
+            glDrawElements(GL_LINE_LOOP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(i*sphere.NUM_LINES*sizeof(GLuint)));//paralel lines
+            //glDrawElements(GL_LINE_STRIP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(i*sphere.NUM_LINES*sizeof(GLuint)));//meridian lines
+            
         }
 
         glfwSwapBuffers(window);
