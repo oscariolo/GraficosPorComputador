@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <math.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -20,6 +21,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     glfwSetWindowShouldClose(window, true);    
 }
 
+double prevMouseX = 0.0;
+double prevMouseY = 0.0;
+bool leftMouseButtonPressed = false;
+glm::mat4 accumulatedRotation = glm::mat4(1.0f);
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        leftMouseButtonPressed = true;
+        glfwGetCursorPos(window, &prevMouseX, &prevMouseY);
+    }
+    
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+        leftMouseButtonPressed = false;
+}
 
 void setUpShaders(unsigned int &shaders)
 {
@@ -56,6 +73,8 @@ int main()
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); 
     glfwSetKeyCallback(window,key_callback);
+    glfwSetMouseButtonCallback(window,mouse_button_callback);
+    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -67,6 +86,8 @@ int main()
 
     unsigned int shaders;
     setUpShaders(shaders);
+
+    unsigned int transformLoc = glGetUniformLocation(shaders, "transform");
     
     GridSphere sphere;
     sphere.setShape();
@@ -75,12 +96,39 @@ int main()
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
+        glfwPollEvents();
+
+        if(leftMouseButtonPressed)
+        {
+            double currX, currY;
+            glfwGetCursorPos(window, &currX, &currY);
+
+            float dx = static_cast<float>(currX - prevMouseX);
+            float dy = static_cast<float>(currY - prevMouseY);
+
+            prevMouseX = currX;
+            prevMouseY = currY;
+
+            float drag = sqrtf(dx * dx + dy * dy);
+            if (drag > 0.0001f)
+            {
+                glm::vec3 axis = glm::normalize(glm::vec3(dy, dx, 0.0f));
+                const float sensitivity = 0.005f;
+                float angle = sensitivity * drag;
+
+                glm::mat4 incremental = glm::rotate(glm::mat4(1.0f), angle, axis);
+                accumulatedRotation = incremental * accumulatedRotation;
+            }
+
+        }
+
         //Rendering commands 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBindVertexArray(sphere.VAO);
         glUseProgram(shaders);
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(accumulatedRotation));
         
         const unsigned int fanCount = sphere.NUM_LINES + 2;
         glDrawElements(GL_TRIANGLE_FAN, fanCount, GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset*sizeof(unsigned int)));//polar fans
@@ -94,7 +142,6 @@ int main()
         }
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
     
     }
 
