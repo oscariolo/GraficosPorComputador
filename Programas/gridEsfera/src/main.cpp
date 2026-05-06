@@ -88,9 +88,9 @@ int main()
         
         // glDrawElements(GL_TRIANGLE_FAN,sphere.NUM_LINES+1,GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset));
         // glDrawElements(GL_TRIANGLE_FAN,sphere.NUM_LINES+1,GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset + (sphere.NUM_LINES+1)*sizeof(GLuint)));
-        for(int i=0;i<=sphere.NUM_LINES;i++){ 
-            glDrawElements(GL_LINE_LOOP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(i*sphere.NUM_LINES*sizeof(GLuint)));//paralel lines
-            //glDrawElements(GL_LINE_STRIP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(i*sphere.NUM_LINES*sizeof(GLuint)));//meridian lines
+        for(int i=0;i<sphere.NUM_LINES;i++){ 
+            //glDrawElements(GL_LINE_LOOP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(i*sphere.NUM_LINES*sizeof(GLuint)));//paralel lines
+            glDrawElements(GL_LINE_STRIP, sphere.NUM_LINES , GL_UNSIGNED_INT, (void*)(i*(sphere.NUM_LINES)*sizeof(GLuint)));//meridian lines
             
         }
 

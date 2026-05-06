@@ -5,15 +5,15 @@
 #include <iostream>
 
 float x_coordinate(float center_x, float radius, float theta, float alpha){
-    return center_x + radius*sin(alpha)*cos(theta);
+    return center_x + radius*sin(alpha)*cos(theta); //0
 };
 
 float y_coordinate(float center_y, float radius, float theta, float alpha){
-    return center_y - radius*cos(alpha);
+    return center_y + radius*cos(alpha);//1
 };
 
 float z_coordinate(float center_z, float radius, float theta, float alpha){
-    return center_z + radius*sin(alpha)*sin(theta);
+    return center_z + radius*sin(alpha)*sin(theta); //0
 };
 
 void GridSphere::setShape(){
@@ -24,18 +24,20 @@ void GridSphere::setShape(){
     meridianIndices.clear();
     polarIndices.clear();
 
-    const int N = NUM_LINES; // same count for meridians and parallels
+    const int N = NUM_LINES; // same count for meridians and parallels (10)
 
     const float thetaStep = 2.0f * PI / N;      // around the sphere
     const float alphaStep = PI / (N);      // pole to pole
 
-    unsigned int indexCount = 0;
-
-    for (int i = 0; i < N; ++i) {     // move from pole to pole      
+    for (int i = 0; i <= N+1; ++i) {     // move from pole to pole (incluye los polos)
         
         float alpha = i * alphaStep;
 
         for (int j = 0; j < N; ++j) {   // move around the sphere
+
+            if(i==0 && !vertices.empty()){
+                break; //evita tomar mas vertice punto en el polo
+            }
 
             float theta = j * thetaStep;
 
@@ -43,27 +45,27 @@ void GridSphere::setShape(){
             vertices.push_back(y_coordinate(center[1], radius, theta, alpha));
             vertices.push_back(z_coordinate(center[2], radius, theta, alpha));
 
-            parallelIndices.push_back(indexCount); 
-            //meridianIndices.push_back(j* N + i);
-            indexCount++;
-
+            if(i==N+1){
+                break; //Si fue el ultimo punto rompe el bucle
+            }
+            
+            
         }
         
     }
-    
+
+    std::cout << vertices.size()/3;
+
     setUpIndices();
 
 
 };
 
 void GridSphere::setUpIndices(){
+    const int N = NUM_LINES;
 
-    //indices.insert(indices.end(),meridianIndices.begin(),meridianIndices.end());
-    // indexMeridianStartOffset = 0;
-    indices.insert(indices.end(),parallelIndices.begin(),parallelIndices.end());
-    //indexParalelStartOffset = (meridianIndices.size()*sizeof(GLuint));
-    // indices.insert(indices.end(),polarIndices.begin(),polarIndices.end());
-    // indexPolarStartOffset = (meridianIndices.size()*sizeof(GLuint) + parallelIndices.size()*sizeof(GLuint));
+
+    
 
 
 }
