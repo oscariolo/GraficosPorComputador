@@ -27,34 +27,35 @@ void GridSphere::setShape(){
     const int N = NUM_LINES; // same count for meridians and parallels (10)
 
     const float thetaStep = 2.0f * PI / N;      // around the sphere
-    const float alphaStep = PI / (N);      // pole to pole
+    const float alphaStep = PI / (N+1);      // skip the poles
 
-    for (int i = 0; i <= N+1; ++i) {     // move from pole to pole (incluye los polos)
+    vertices.push_back(x_coordinate(center[0], radius, 0, 0));
+    vertices.push_back(y_coordinate(center[1], radius, 0, 0));
+    vertices.push_back(z_coordinate(center[2], radius, 0, 0));
+
+    unsigned int idx=1;
+
+    for (int i = 1; i <= N; ++i) {     // move from pole to pole (incluye los polos)
         
         float alpha = i * alphaStep;
 
         for (int j = 0; j < N; ++j) {   // move around the sphere
-
-            if(i==0 && !vertices.empty()){
-                break; //evita tomar mas vertice punto en el polo
-            }
-
+            
             float theta = j * thetaStep;
 
             vertices.push_back(x_coordinate(center[0], radius, theta, alpha));
             vertices.push_back(y_coordinate(center[1], radius, theta, alpha));
             vertices.push_back(z_coordinate(center[2], radius, theta, alpha));
 
-            if(i==N+1){
-                break; //Si fue el ultimo punto rompe el bucle
-            }
-            
-            
+            parallelIndices.push_back(idx);
+            ++idx;
         }
         
     }
 
-    std::cout << vertices.size()/3;
+    vertices.push_back(x_coordinate(center[0], radius, 0, PI));
+    vertices.push_back(y_coordinate(center[1], radius, 0, PI));
+    vertices.push_back(z_coordinate(center[2], radius, 0, PI));
 
     setUpIndices();
 
@@ -62,11 +63,48 @@ void GridSphere::setShape(){
 };
 
 void GridSphere::setUpIndices(){
+    
     const int N = NUM_LINES;
 
+    polarIndices.clear();
 
-    
+    for(int i = 0; i<N; ++i){
+        for(int j = 0; j<N; ++j){
+            meridianIndices.push_back((j*N+i) + 1);
+        }
+    }
 
+    // north fan: center (north pole), first ring, then close with first ring vertex
+    const unsigned int northPoleIndex = 0;
+    const unsigned int firstRingStart = 1;
+    polarIndices.push_back(northPoleIndex);
+    for (int i = 0; i <= N; ++i) {
+        if (i == N) {
+            polarIndices.push_back(firstRingStart);
+        } else {
+            polarIndices.push_back(firstRingStart + i);
+        }
+    }
+
+    // south fan: center (south pole), last ring, then close with first last-ring vertex
+    const unsigned int southPoleIndex = N * N + 1;
+    const unsigned int lastRingStart = (N - 1) * N + 1;
+    polarIndices.push_back(southPoleIndex);
+    for (int i = 0; i <= N; ++i) {
+        if (i == N) {
+            polarIndices.push_back(lastRingStart);
+        } else {
+            polarIndices.push_back(lastRingStart + i);
+        }
+    }
+
+    indices.insert(indices.end(),polarIndices.begin(),polarIndices.end());
+    indices.insert(indices.end(),meridianIndices.begin(),meridianIndices.end());
+    indices.insert(indices.end(),parallelIndices.begin(),parallelIndices.end());
+
+    indexPolarStartOffset = 0;
+    indexMeridianStartOffset = polarIndices.size() * sizeof(unsigned int);
+    indexParalelStartOffset = (polarIndices.size() + meridianIndices.size()) * sizeof(unsigned int);
 
 }
 

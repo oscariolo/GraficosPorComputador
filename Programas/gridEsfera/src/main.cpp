@@ -86,11 +86,14 @@ int main()
         glBindVertexArray(sphere.VAO);
         glUseProgram(shaders);
         
-        // glDrawElements(GL_TRIANGLE_FAN,sphere.NUM_LINES+1,GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset));
-        // glDrawElements(GL_TRIANGLE_FAN,sphere.NUM_LINES+1,GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset + (sphere.NUM_LINES+1)*sizeof(GLuint)));
+        const unsigned int fanCount = sphere.NUM_LINES + 2;
+        glDrawElements(GL_TRIANGLE_FAN, fanCount, GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset*sizeof(unsigned int)));//polar fans
+        glDrawElements(GL_TRIANGLE_FAN, fanCount, GL_UNSIGNED_INT, (void*)(sphere.indexPolarStartOffset + fanCount * sizeof(unsigned int)));
+
         for(int i=0;i<sphere.NUM_LINES;i++){ 
-            //glDrawElements(GL_LINE_LOOP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(i*sphere.NUM_LINES*sizeof(GLuint)));//paralel lines
-            glDrawElements(GL_LINE_STRIP, sphere.NUM_LINES , GL_UNSIGNED_INT, (void*)(i*(sphere.NUM_LINES)*sizeof(GLuint)));//meridian lines
+            glDrawElements(GL_LINE_STRIP, sphere.NUM_LINES , GL_UNSIGNED_INT, (void*)(sphere.indexMeridianStartOffset + i*(sphere.NUM_LINES)*sizeof(unsigned int)));//meridian lines
+            glDrawElements(GL_LINE_LOOP, sphere.NUM_LINES, GL_UNSIGNED_INT, (void*)(sphere.indexParalelStartOffset + i*(sphere.NUM_LINES)*sizeof(unsigned int)));//paralel lines
+
             
         }
 
