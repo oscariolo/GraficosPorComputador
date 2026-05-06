@@ -10,6 +10,7 @@
 				"-g",
 				"-std=c++17",
 				"-I${workspaceFolder}/include",
+				"-I${workspaceFolder}/include/glm",
 				"${workspaceFolder}/gridEsfera/src/*.cpp",
 				"${workspaceFolder}/gridEsfera/src/include/*.cpp",
 				"${workspaceFolder}/glad.c",
