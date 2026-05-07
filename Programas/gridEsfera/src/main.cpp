@@ -92,6 +92,7 @@ int main()
     GridSphere sphere;
     sphere.setShape();
     sphere.setUpBuffers();
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); //para que el triangle fan se muestre como lineas 
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
@@ -123,7 +124,7 @@ int main()
         }
 
         //Rendering commands 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBindVertexArray(sphere.VAO);

@@ -14,7 +14,7 @@ class GridSphere{
         std::vector<float> vertices;
         std::vector<unsigned int> indices;
 
-        static constexpr int NUM_LINES = 10;
+        static constexpr int NUM_LINES = 20;
 
         std::vector<unsigned int> polarIndices;
         std::vector<unsigned int> meridianIndices;
@@ -27,7 +27,7 @@ class GridSphere{
 
     private:
         float center[3] = {0.0f,0.0f,0.0f};
-        float radius = 1;
+        float radius = 0.8;
 
         static constexpr double PI = 3.14159265358979323846;
         void setUpIndices();
