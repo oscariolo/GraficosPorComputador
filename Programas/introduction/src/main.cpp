@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "utils/shader_utils.h"
+#include "include/utils/shader_utils.h"
 #include <iostream>
 #include <filesystem>
 #include <string>
@@ -84,7 +84,7 @@ void setupBasicShape(unsigned int &VBOs,unsigned int &VAOs)
         3,                  // number of components (x, y, z)
         GL_FLOAT,           // data type
         GL_FALSE,           // should OpenGL normalize values?
-        6 * sizeof(float),  // stride: total size of one vertex
+        6 * sizeof(float),  
         (void*)(3 * sizeof(float))  // offset: where this attribute starts
     );
     glEnableVertexAttribArray(1);
