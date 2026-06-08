@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <math.h>
+#include "classes/Cube.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -86,6 +87,10 @@ int main()
     unsigned int shaders;
     setUpShaders(shaders);
 
+    Cube mainCube;
+
+    mainCube.instantiate();
+
     
     
     //Render Loop
@@ -96,6 +101,11 @@ int main()
         //Rendering commands 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glBindVertexArray(mainCube.VAO);
+        glUseProgram(shaders);
+        
+        glDrawElements(GL_TRIANGLES,12,GL_UNSIGNED_INT,(void*)0);
 
         glfwSwapBuffers(window);
     
