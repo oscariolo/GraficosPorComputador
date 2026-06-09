@@ -9,7 +9,7 @@ class Cube{
 
     public:
 
-        Cube(float baseSize = 1.0f);
+        Cube(float baseSize = 1.0f, unsigned int shaderID = 0);
 
         struct Vertex{
             std::array<float,3> position;
@@ -95,6 +95,8 @@ class Cube{
 
         unsigned int EBO;
 
+        unsigned int shaderID;
+
         std::array<Face,6> faces;
 
         glm::mat4 model = glm::mat4(1.0f);
@@ -104,20 +106,8 @@ class Cube{
         std::vector<Vertex> vertexData;
         std::vector<Vertex> originalVertexData;
         
-        std::vector<float> getVertexBufferData() const {
-            std::vector<float> data;
-            for (const auto& vertex : vertexData) {
-                data.push_back(vertex.position[0]);
-                data.push_back(vertex.position[1]);
-                data.push_back(vertex.position[2]);
-                data.push_back(vertex.color[0]);
-                data.push_back(vertex.color[1]);
-                data.push_back(vertex.color[2]);
-            }
-            return data;
-        }
-
-        void update();
+        std::vector<float> getVertexBufferData() const;
+        std::vector<float> getOriginalVertexBufferData() const;
         
 
 };

@@ -24,7 +24,7 @@ const int VIEWPORT_SIZE[] = {1080,1080};
 
 bool wireframeMode = false;
 
-bool renderWithGPU = true; // true for CPU, false for GPU
+bool renderWithGPU = false; // true for CPU, false for GPU
 
 ToolMode currentMode = ToolMode::None;
 
@@ -34,12 +34,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 } 
-
-void manageAnimation(){
-
-    
-
-}
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -164,12 +158,17 @@ void pollAnimationEvent(GLFWwindow* window, Cube& instance){
             if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
                 scale.z -= delta;
         }
-
-        instance.transform(scale.x, scale.y, scale.z);
+        if(scale != glm::vec3(1.0f)) { //para evitar multiplicar sin evento
+            instance.transform(scale.x, scale.y, scale.z);
+        }    
       
     }
-    
-    instance.applyTransform(renderWithGPU);
+
+    //render solo cuando hay evento
+    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+        instance.applyTransform(renderWithGPU);
+    }
 
 }
 
@@ -213,7 +212,7 @@ int main()
     unsigned int shaders;
     setUpShaders(shaders);
 
-    Cube mainCube(0.5);
+    Cube mainCube(0.5,shaders);
 
     mainCube.instantiate();
 

@@ -1,21 +1,22 @@
 #include "Cube.h"
 #include <glad/glad.h>
 #include <iostream>
-#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
+bool lastTransformWasGPU = false;
 
 
-
-Cube::Cube(float baseSize){
+Cube::Cube(float baseSize, unsigned int shaderID){
 
     //generamos el cubo partiendo desde las caras, de ahi por cada cara sus aristas con sus vertices
     
     //el tamaño practicamente dictamina la posicion (ej. 0.5) de ahi solo alterna el signo y cual de los ejes se toma como referencia para la cara
-
+    this->shaderID = shaderID;
+    
     //cara frontal
     Vertex v1 = Vertex(-baseSize/2,baseSize/2,baseSize/2,1,1,1); 
     Vertex v2 = Vertex(baseSize/2,baseSize/2,baseSize/2,1,1,0);
@@ -121,55 +122,76 @@ void Cube::instantiate(){
     glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,6*sizeof(float),(void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
 
-
 }
 
 
-
+//para movimiento de traslacion
 void Cube::transform(glm::vec3 translation){
     this->model = glm::translate(this->model,translation);
 
 }
 
+//para escalamiento
 void Cube::transform(float scaleX, float scaleY, float scaleZ){
     this->model = glm::scale(this->model,glm::vec3(scaleX,scaleY,scaleZ));
 }
 
+//para rotacion
 void Cube::transform(glm::vec3 axis, float angle){
     this->model = glm::rotate(this->model, glm::radians(angle), axis);
 }
 
-
+//aplicar transformacion segun modo
 void Cube::applyTransform(bool useGPU){
-    
+
     if(useGPU){
-        //TODO GPU transform
-        
+        //GPU transform
+        unsigned int transformLoc = glGetUniformLocation(shaderID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(this->model));
         return;
     }
 
+    //CPU transform
     for(size_t i = 0; i < originalVertexData.size(); i++){
         // Read from originalVertexData
         glm::vec4 v(originalVertexData[i].position[0], originalVertexData[i].position[1], originalVertexData[i].position[2], 1.0f);
         glm::vec4 transform = this->model * v;
 
-        // Write to vertexData (not originalVertexData!)
         vertexData[i].position[0] = transform.x;
         vertexData[i].position[1] = transform.y;
         vertexData[i].position[2] = transform.z;
     }
 
-    update();
-}
-
-
-
-void Cube::update(){
-
     auto bufferData = getVertexBufferData(); 
 
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);  // Add this line
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); 
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * bufferData.size(), bufferData.data(), GL_DYNAMIC_DRAW);
 
+}
+
+std::vector<float> Cube::getVertexBufferData() const {
+    std::vector<float> data;
+    for (const auto& vertex : vertexData) {
+        data.push_back(vertex.position[0]);
+        data.push_back(vertex.position[1]);
+        data.push_back(vertex.position[2]);
+        data.push_back(vertex.color[0]);
+        data.push_back(vertex.color[1]);
+        data.push_back(vertex.color[2]);
+    }
+    return data;
+}
+
+std::vector<float> Cube::getOriginalVertexBufferData() const {
+    std::vector<float> data;
+    for (const auto& vertex : originalVertexData) {
+        data.push_back(vertex.position[0]);
+        data.push_back(vertex.position[1]);
+        data.push_back(vertex.position[2]);
+        data.push_back(vertex.color[0]);
+        data.push_back(vertex.color[1]);
+        data.push_back(vertex.color[2]);
+    }
+    return data;
 }
