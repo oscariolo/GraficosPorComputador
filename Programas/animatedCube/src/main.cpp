@@ -221,7 +221,7 @@ int main()
 
     mainCube.instantiate();
 
-    //Animacion depende del modo de edicion, despues de la tecla presionada, una vez presionada eso se toma el objeto y se aplica la transformación designada
+    glEnable(GL_DEPTH_TEST); //Para considerar profundidad en z en el renderizado
 
     //Render Loop
     while(!glfwWindowShouldClose(window))
@@ -237,8 +237,9 @@ int main()
             glfwPollEvents();
             pollAnimationEvent(window,mainCube);
             //Rendering
+            
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glBindVertexArray(mainCube.VAO);
             glUseProgram(shaders);
