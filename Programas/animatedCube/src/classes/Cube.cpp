@@ -16,19 +16,27 @@ Cube::Cube(float baseSize, unsigned int shaderID){
     
     //el tamaño practicamente dictamina la posicion (ej. 0.5) de ahi solo alterna el signo y cual de los ejes se toma como referencia para la cara
     this->shaderID = shaderID;
+
+    std::array<float,3> yellow = {1,1,0};
+    std::array<float,3> red = {1,0,0};
+    std::array<float,3> green = {0,1,0};
+    std::array<float,3> cyan = {0,1,1};
+    std::array<float,3> magenta = {1,0,1};
+    std::array<float,3> blue = {0,0,1};
+
     
     //cara frontal
-    Vertex v1 = Vertex(-baseSize/2,baseSize/2,baseSize/2,1,1,1); 
-    Vertex v2 = Vertex(baseSize/2,baseSize/2,baseSize/2,1,1,0);
-    Vertex v3 = Vertex(-baseSize/2,-baseSize/2,baseSize/2,1,0,1);
-    Vertex v4 = Vertex(baseSize/2,-baseSize/2,baseSize/2,0,0,1);
+    Vertex v1 = Vertex(-baseSize/2,baseSize/2,baseSize/2,yellow); 
+    Vertex v2 = Vertex(baseSize/2,baseSize/2,baseSize/2,red);
+    Vertex v3 = Vertex(-baseSize/2,-baseSize/2,baseSize/2,green);
+    Vertex v4 = Vertex(baseSize/2,-baseSize/2,baseSize/2,cyan);
 
     //cara trasera
     
-    Vertex v5 = Vertex(-baseSize/2,baseSize/2,-baseSize/2,1,1,1);
-    Vertex v6 = Vertex(baseSize/2,baseSize/2,-baseSize/2,1,1,0);
-    Vertex v7 = Vertex(-baseSize/2,-baseSize/2,-baseSize/2,1,0,1);
-    Vertex v8 = Vertex(baseSize/2,-baseSize/2,-baseSize/2,0,0,1);
+    Vertex v5 = Vertex(-baseSize/2,baseSize/2,-baseSize/2,magenta);
+    Vertex v6 = Vertex(baseSize/2,baseSize/2,-baseSize/2,blue);
+    Vertex v7 = Vertex(-baseSize/2,-baseSize/2,-baseSize/2,yellow);
+    Vertex v8 = Vertex(baseSize/2,-baseSize/2,-baseSize/2,red);
 
     //cara izquiera
     //v1 v5 v3 v7

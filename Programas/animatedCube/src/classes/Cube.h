@@ -26,10 +26,10 @@ class Cube{
             }
 
             //Position and color
-            Vertex(float x, float y, float z, float r, float g, float b):Vertex(x,y,z){
-                color[0] = r;
-                color[1] = g;
-                color[2] = b;
+            Vertex(float x, float y, float z, std::array<float,3> rgb):Vertex(x,y,z){
+                color[0] = rgb[0];
+                color[1] = rgb[1];
+                color[2] = rgb[2];
             }
 
             bool operator==(const Vertex& other) const{

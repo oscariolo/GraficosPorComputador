@@ -106,7 +106,7 @@ void setUpShaders(unsigned int &shaders)
 
 void pollAnimationEvent(GLFWwindow* window, Cube& instance){
     
-    const float delta = 0.01;
+    const float delta = 0.035f;
 
 
     if(currentMode == ToolMode::Translating){
