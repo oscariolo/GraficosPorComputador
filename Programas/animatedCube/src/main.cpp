@@ -24,7 +24,7 @@ const int VIEWPORT_SIZE[] = {1080,1080};
 
 bool wireframeMode = false;
 
-std::string renderMode = "CPU";
+bool renderWithGPU = true; // true for CPU, false for GPU
 
 ToolMode currentMode = ToolMode::None;
 
@@ -80,12 +80,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
     if (key == GLFW_KEY_M && action == GLFW_PRESS){ //cambiar entre CPU Y GPU
 
-        if(renderMode == "CPU"){
-            renderMode = "GPU";
-        }else{
-            renderMode = "CPU";
-        }
-        std::cout << "Modo de renderizado: " << renderMode << "\n";
+        renderWithGPU = !renderWithGPU;
+        std::cout << "Modo de renderizado: " << (renderWithGPU ? "GPU" : "CPU") << "\n";
     }
 
     if(key == GLFW_KEY_P && action == GLFW_PRESS){
@@ -132,7 +128,7 @@ void pollAnimationEvent(GLFWwindow* window, Cube& instance){
             translation.x += delta;
         
         if(translation != glm::vec3(0.0f)) {
-            instance.transformCPU(translation);
+            instance.transform(translation);
         }
     }
 
@@ -140,9 +136,9 @@ void pollAnimationEvent(GLFWwindow* window, Cube& instance){
 
     if(currentMode == ToolMode::Rotating){
         if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            instance.transformCPU(focusAxis, delta * rotationSpeed);
+            instance.transform(focusAxis, delta * rotationSpeed);
         if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            instance.transformCPU(-focusAxis, delta * rotationSpeed);
+            instance.transform(-focusAxis, delta * rotationSpeed);
     }
 
     if(currentMode == ToolMode::Scaling){
@@ -169,11 +165,11 @@ void pollAnimationEvent(GLFWwindow* window, Cube& instance){
                 scale.z -= delta;
         }
 
-        instance.transformCPU(scale.x, scale.y, scale.z);
+        instance.transform(scale.x, scale.y, scale.z);
       
     }
     
-    instance.applyTransform();
+    instance.applyTransform(renderWithGPU);
 
 }
 

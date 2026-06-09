@@ -126,21 +126,27 @@ void Cube::instantiate(){
 
 
 
-void Cube::transformCPU(glm::vec3 translation){
-    this->model = this->model * glm::translate(glm::mat4(1.0f),translation);
+void Cube::transform(glm::vec3 translation){
+    this->model = glm::translate(this->model,translation);
 
 }
 
-void Cube::transformCPU(float scaleX, float scaleY, float scaleZ){
-    this->model = this->model * glm::scale(glm::mat4(1.0f),glm::vec3(scaleX,scaleY,scaleZ));
+void Cube::transform(float scaleX, float scaleY, float scaleZ){
+    this->model = glm::scale(this->model,glm::vec3(scaleX,scaleY,scaleZ));
 }
 
-void Cube::transformCPU(glm::vec3 axis, float angle){
-    this->model = glm::rotate(glm::mat4(1.0f), glm::radians(angle), axis) * this->model;
+void Cube::transform(glm::vec3 axis, float angle){
+    this->model = glm::rotate(this->model, glm::radians(angle), axis);
 }
 
 
-void Cube::applyTransform(){
+void Cube::applyTransform(bool useGPU){
+    
+    if(useGPU){
+        //TODO GPU transform
+        
+        return;
+    }
 
     for(size_t i = 0; i < originalVertexData.size(); i++){
         // Read from originalVertexData

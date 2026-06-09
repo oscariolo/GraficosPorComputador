@@ -75,16 +75,17 @@ class Cube{
         void instantiate();
 
         //apply transform
-        void applyTransform();
+        //0 para CPU, 1 para GPU
+        void applyTransform(bool useGPU = true);
 
         //transform translation
-        void transformCPU(glm::vec3 translation);
+        void transform(glm::vec3 translation);
 
         //scale transform
-        void transformCPU(float scaleX, float scaleY, float Z);
+        void transform(float scaleX, float scaleY, float scaleZ);
         
         //rotation transform
-        void transformCPU(glm::vec3 axis, float angle);
+        void transform(glm::vec3 axis, float angle);
 
 
 
