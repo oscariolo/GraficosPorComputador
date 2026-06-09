@@ -144,16 +144,26 @@ void Cube::transform(glm::vec3 axis, float angle){
 //aplicar transformacion segun modo
 void Cube::applyTransform(bool useGPU){
 
+    unsigned int transformLoc = glGetUniformLocation(shaderID, "transform");
+
+    //Resetea solo una vez al cambiar de modo para evitar acumulacion de transformaciones en GPU
+    if(useGPU != lastTransformWasGPU){
+        // Reset GPU buffer to original vertices for GPU mode
+        auto bufferData = getOriginalVertexBufferData();
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * bufferData.size(), bufferData.data(), GL_DYNAMIC_DRAW);
+        lastTransformWasGPU = useGPU;
+    }
+
     if(useGPU){
-        //GPU transform
-        unsigned int transformLoc = glGetUniformLocation(shaderID, "transform");
+        // GPU: shader applies model matrix to original vertices
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(this->model));
         return;
     }
 
-    //CPU transform
+    // CPU transform - directamente a los vertices
     for(size_t i = 0; i < originalVertexData.size(); i++){
-        // Read from originalVertexData
         glm::vec4 v(originalVertexData[i].position[0], originalVertexData[i].position[1], originalVertexData[i].position[2], 1.0f);
         glm::vec4 transform = this->model * v;
 
@@ -162,12 +172,14 @@ void Cube::applyTransform(bool useGPU){
         vertexData[i].position[2] = transform.z;
     }
 
-    auto bufferData = getVertexBufferData(); 
+    // pasa como identidad para no transformar denuevo
+    glm::mat4 identity = glm::mat4(1.0f);
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(identity));
 
+    auto bufferData = getVertexBufferData(); 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO); 
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * bufferData.size(), bufferData.data(), GL_DYNAMIC_DRAW);
-
 }
 
 std::vector<float> Cube::getVertexBufferData() const {
