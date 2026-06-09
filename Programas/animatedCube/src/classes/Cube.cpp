@@ -83,18 +83,24 @@ void Cube::instantiate(){
     auto bufferData = getVertexBufferData();
 
     int indices[] = {
-        0,1,2,
-        1,2,3,
-        4,5,6,
-        5,6,7,
-        1,5,7,
-        3,5,7,
-        0,2,4,
-        2,4,6,
-        0,1,4,
-        1,4,5,
-        2,3,6,
-        3,6,7
+        //frente
+        2,3,1,
+        2,0,1,
+        //atras
+        5,4,6,
+        5,7,6,
+        //derecha
+        3,1,5   ,
+        3,7,5,
+        //izquierda
+        2,0,4,
+        2,6,4,
+        //superior
+        0,4,5,
+        0,1,5,
+        //inferior
+        2,6,7,
+        2,3,7
     };
 
     glGenVertexArrays(1, &VAO);
