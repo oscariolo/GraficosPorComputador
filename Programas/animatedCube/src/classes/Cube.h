@@ -2,12 +2,14 @@
 #define CUBE_H
 #include <vector>
 #include <array>
+#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
 
 class Cube{
 
     public:
 
-        Cube();
+        Cube(float baseSize = 1.0f);
 
         struct Vertex{
             std::array<float,3> position;
@@ -72,17 +74,19 @@ class Cube{
 
         void instantiate();
 
-        void rotateGPU(float angle);
+        //apply transform
+        void applyTransform();
 
-        void translateGPU(const float vec[3]);
+        //transform translation
+        void transformCPU(glm::vec3 translation);
 
-        void scaleGPU(float scale);
+        //scale transform
+        void transformCPU(float scaleX, float scaleY, float Z);
+        
+        //rotation transform
+        void transformCPU(glm::vec3 axis, float angle);
 
-        void rotateCPU(float angle);
 
-        void translateCPU(const float vec[3]);
-
-        void scaleCPU(float scale);
 
         unsigned int VBO;
 
@@ -91,10 +95,13 @@ class Cube{
         unsigned int EBO;
 
         std::array<Face,6> faces;
+
+        glm::mat4 model = glm::mat4(1.0f);
     
     private:
         
         std::vector<Vertex> vertexData;
+        std::vector<Vertex> originalVertexData;
         
         std::vector<float> getVertexBufferData() const {
             std::vector<float> data;
@@ -107,7 +114,9 @@ class Cube{
                 data.push_back(vertex.color[2]);
             }
             return data;
-    }
+        }
+
+        void update();
         
 
 };

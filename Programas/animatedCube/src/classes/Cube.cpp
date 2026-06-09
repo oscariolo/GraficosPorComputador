@@ -1,29 +1,33 @@
 #include "Cube.h"
 #include <glad/glad.h>
 #include <iostream>
-#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 
 
 
-Cube::Cube(){
+
+Cube::Cube(float baseSize){
 
     //generamos el cubo partiendo desde las caras, de ahi por cada cara sus aristas con sus vertices
     
     //el tamaño practicamente dictamina la posicion (ej. 0.5) de ahi solo alterna el signo y cual de los ejes se toma como referencia para la cara
 
     //cara frontal
-    Vertex v1 = Vertex(-0.5,0.5,0.5,0.5,0.5,1); 
-    Vertex v2 = Vertex(0.5,0.5,0.5,0.5,1,1);
-    Vertex v3 = Vertex(-0.5,-0.5,0.5,0.5,0.5,1);
-    Vertex v4 = Vertex(0.5,-0.5,0.5,1,0.5,1);
+    Vertex v1 = Vertex(-baseSize/2,baseSize/2,baseSize/2,1,1,1); 
+    Vertex v2 = Vertex(baseSize/2,baseSize/2,baseSize/2,1,1,0);
+    Vertex v3 = Vertex(-baseSize/2,-baseSize/2,baseSize/2,1,0,1);
+    Vertex v4 = Vertex(baseSize/2,-baseSize/2,baseSize/2,0,0,1);
 
     //cara trasera
     
-    Vertex v5 = Vertex(-0.5,0.5,-0.5,0.5,1,1);
-    Vertex v6 = Vertex(0.5,0.5,-0.5,0.5,0.5,1);
-    Vertex v7 = Vertex(-0.5,-0.5,-0.5,1,0.5,1);
-    Vertex v8 = Vertex(0.5,-0.5,-0.5,0.5,0.9,1);
+    Vertex v5 = Vertex(-baseSize/2,baseSize/2,-baseSize/2,1,1,1);
+    Vertex v6 = Vertex(baseSize/2,baseSize/2,-baseSize/2,1,1,0);
+    Vertex v7 = Vertex(-baseSize/2,-baseSize/2,-baseSize/2,1,0,1);
+    Vertex v8 = Vertex(baseSize/2,-baseSize/2,-baseSize/2,0,0,1);
 
     //cara izquiera
     //v1 v5 v3 v7
@@ -38,6 +42,7 @@ Cube::Cube(){
     //v3 v4 v7 v8
 
     this->vertexData = {v1,v2,v3,v4,v5,v6,v7,v8};
+    this->originalVertexData = vertexData;
     
     std::vector<std::pair<int, int>> edgeConnections = {
     {0,1}, {2,3}, {0,2}, {1,3},  // front
@@ -79,17 +84,17 @@ void Cube::instantiate(){
 
     int indices[] = {
         0,1,2,
-        3,1,2,
+        1,2,3,
         4,5,6,
-        7,5,6,
+        5,6,7,
         1,5,7,
         3,5,7,
         0,2,4,
-        6,2,4,
+        2,4,6,
         0,1,4,
-        5,1,4,
+        1,4,5,
         2,3,6,
-        7,3,6
+        3,6,7
     };
 
     glGenVertexArrays(1, &VAO);
@@ -113,8 +118,45 @@ void Cube::instantiate(){
 
 }
 
-void Cube::rotateCPU(float angle){
 
 
+void Cube::transformCPU(glm::vec3 translation){
+    this->model = this->model * glm::translate(glm::mat4(1.0f),translation);
+
+}
+
+void Cube::transformCPU(float scaleX, float scaleY, float scaleZ){
+    this->model = this->model * glm::scale(glm::mat4(1.0f),glm::vec3(scaleX,scaleY,scaleZ));
+}
+
+void Cube::transformCPU(glm::vec3 axis, float angle){
+    this->model = glm::rotate(glm::mat4(1.0f), glm::radians(angle), axis) * this->model;
+}
+
+void Cube::applyTransform(){
+
+    for(size_t i = 0; i < originalVertexData.size(); i++){
+        // Read from originalVertexData
+        glm::vec4 v(originalVertexData[i].position[0], originalVertexData[i].position[1], originalVertexData[i].position[2], 1.0f);
+        glm::vec4 transform = this->model * v;
+
+        // Write to vertexData (not originalVertexData!)
+        vertexData[i].position[0] = transform.x;
+        vertexData[i].position[1] = transform.y;
+        vertexData[i].position[2] = transform.z;
+    }
+
+    update();
+}
+
+
+
+void Cube::update(){
+
+    auto bufferData = getVertexBufferData(); 
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);  // Add this line
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * bufferData.size(), bufferData.data(), GL_DYNAMIC_DRAW);
 
 }

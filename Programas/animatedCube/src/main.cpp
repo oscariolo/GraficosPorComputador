@@ -9,34 +9,94 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <math.h>
 #include "classes/Cube.h"
+#include <chrono>
+
+
+enum class ToolMode{
+    Scaling,
+    Translating,
+    Rotating,
+    None,
+};
+
+
+const int VIEWPORT_SIZE[] = {1080,1080};
+
+bool wireframeMode = false;
+
+std::string renderMode = "CPU";
+
+ToolMode currentMode = ToolMode::None;
+
+glm::vec3 focusAxis = {1,0,0};
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 } 
 
+void manageAnimation(){
+
+    
+
+}
+
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);    
-}
 
-double prevMouseX = 0.0;
-double prevMouseY = 0.0;
-bool leftMouseButtonPressed = false;
-glm::mat4 accumulatedRotation = glm::mat4(1.0f);
-
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-    {
-        leftMouseButtonPressed = true;
-        glfwGetCursorPos(window, &prevMouseX, &prevMouseY);
+    if (key == GLFW_KEY_S && action == GLFW_PRESS){ //modo escalamiento
+        currentMode = ToolMode::Scaling;
+        std::cout << "Modo de animación actual: Escalamiento \n";
     }
-    
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-        leftMouseButtonPressed = false;
+
+    if (key == GLFW_KEY_T && action == GLFW_PRESS){ //modo translacion
+        currentMode = ToolMode::Translating;
+        std::cout << "Modo de animación actual: Translación \n";
+    }
+
+    if (key == GLFW_KEY_R && action == GLFW_PRESS){// modo rotacion
+        currentMode = ToolMode::Rotating;
+        std::cout << "Modo de animación actual: Rotación \n";
+    }
+
+    if (key == GLFW_KEY_X && action == GLFW_PRESS){ //eje x
+        focusAxis = {1,0,0};
+        std::cout << "Eje de enfoque: X \n";
+    }
+
+    if (key == GLFW_KEY_Y && action == GLFW_PRESS){ //eje y
+        focusAxis = {0,1,0};
+        std::cout << "Eje de enfoque: Y \n";
+    }
+
+    if (key == GLFW_KEY_Z && action == GLFW_PRESS){ //eje z
+        focusAxis = {0,0,1};
+        std::cout << "Eje de enfoque: Z \n";
+    }
+
+
+    if (key == GLFW_KEY_M && action == GLFW_PRESS){ //cambiar entre CPU Y GPU
+
+        if(renderMode == "CPU"){
+            renderMode = "GPU";
+        }else{
+            renderMode = "CPU";
+        }
+        std::cout << "Modo de renderizado: " << renderMode << "\n";
+    }
+
+    if(key == GLFW_KEY_P && action == GLFW_PRESS){
+        wireframeMode = !wireframeMode;
+        glPolygonMode(GL_FRONT_AND_BACK, wireframeMode ? GL_LINE : GL_FILL);
+    }
+
+  
+
 }
+
 
 void setUpShaders(unsigned int &shaders)
 {
@@ -54,6 +114,69 @@ void setUpShaders(unsigned int &shaders)
     glDeleteShader(fragmentShader);
 }
 
+void pollAnimationEvent(GLFWwindow* window, Cube& instance){
+    
+    const float delta = 0.01;
+
+
+    if(currentMode == ToolMode::Translating){
+        glm::vec3 translation(0.0f);
+        
+        if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            translation.y += delta;
+        if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            translation.y -= delta;
+        if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            translation.x -= delta;
+        if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            translation.x += delta;
+        
+        if(translation != glm::vec3(0.0f)) {
+            instance.transformCPU(translation);
+        }
+    }
+
+    const float rotationSpeed = 50;
+
+    if(currentMode == ToolMode::Rotating){
+        if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            instance.transformCPU(focusAxis, delta * rotationSpeed);
+        if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            instance.transformCPU(-focusAxis, delta * rotationSpeed);
+    }
+
+    if(currentMode == ToolMode::Scaling){
+
+        //escala solo en el eje de enfoque
+
+        glm::vec3 scale(1.0f);
+        if(focusAxis.x == 1){
+            if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+                scale.x += delta;
+            if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+                scale.x -= delta;
+        }
+        if(focusAxis.y == 1){
+            if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+                scale.y += delta;
+            if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+                scale.y -= delta;
+        }
+        if(focusAxis.z == 1){
+            if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+                scale.z += delta;
+            if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+                scale.z -= delta;
+        }
+
+        instance.transformCPU(scale.x, scale.y, scale.z);
+      
+    }
+    
+    instance.applyTransform();
+
+}
+
 
 int main()
 {
@@ -62,7 +185,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(VIEWPORT_SIZE[0], VIEWPORT_SIZE[1], "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -73,7 +196,6 @@ int main()
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); 
     glfwSetKeyCallback(window,key_callback);
-    glfwSetMouseButtonCallback(window,mouse_button_callback);
     glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -82,33 +204,54 @@ int main()
         return -1;
     } 
 
-    glViewport(0, 0, 800, 600);    
+    glViewport(0, 0, VIEWPORT_SIZE[0], VIEWPORT_SIZE[1]);   
+    
+    //Manejo de loop para limitar a FPS
+    const int FPS = 60;
+    const double timePerFrame = 1.0 / FPS;
+    double accumulator = 0.0;
+    auto lastTime = std::chrono::steady_clock::now();
+    
+
 
     unsigned int shaders;
     setUpShaders(shaders);
 
-    Cube mainCube;
+    Cube mainCube(0.5);
 
     mainCube.instantiate();
 
-    
-    
+    //Animacion depende del modo de edicion, despues de la tecla presionada, una vez presionada eso se toma el objeto y se aplica la transformación designada
+
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
-        glfwPollEvents();
-
-        //Rendering commands 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glBindVertexArray(mainCube.VAO);
-        glUseProgram(shaders);
+        auto currentTime = std::chrono::steady_clock::now();
+        double deltaTime = std::chrono::duration<double>(currentTime - lastTime).count();
+        lastTime = currentTime;
         
-        glDrawElements(GL_TRIANGLES,12,GL_UNSIGNED_INT,(void*)0);
+        accumulator += deltaTime;
 
-        glfwSwapBuffers(window);
-    
+        // Only update and render if enough time has passed
+        while(accumulator >= timePerFrame) {
+            glfwPollEvents();
+            pollAnimationEvent(window,mainCube);
+            //Rendering
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glBindVertexArray(mainCube.VAO);
+            glUseProgram(shaders);
+            
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0);
+
+            glfwSwapBuffers(window);
+
+            accumulator -= timePerFrame;
+
+        }
+
+
     }
 
     glfwTerminate();
