@@ -165,7 +165,7 @@ void Cube::applyTransform(bool useGPU){
     }
 
     if(useGPU){
-        // GPU: shader applies model matrix to original vertices
+        // GPU: shader aplica transformacion a los vertices, calculo ya no se hace en CPU
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(this->model));
         return;
     }
