@@ -51,10 +51,10 @@ void sourceShader(const char* name,unsigned int &shader, GLenum shaderType)
 inline void setUpShaders(unsigned int &shaders , const char* vertexShaderfile, const char* fragmentShaderfile)
 {
     unsigned int vertexShader;
-    sourceShader("vertex.shader",vertexShader,GL_VERTEX_SHADER);
+    sourceShader(vertexShaderfile,vertexShader,GL_VERTEX_SHADER);
 
     unsigned int fragmentShader;
-    sourceShader("fragment.shader",fragmentShader,GL_FRAGMENT_SHADER);
+    sourceShader(fragmentShaderfile,fragmentShader,GL_FRAGMENT_SHADER);
 
     shaders = glCreateProgram();
     glAttachShader(shaders,vertexShader);

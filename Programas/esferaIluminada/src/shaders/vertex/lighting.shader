@@ -25,11 +25,13 @@ void main()
 
     vec3 FragPos = vec3(model * vec4(aPos, 1.0));
 
+    vec3 normalSphere;
+
     if(lightingByFace){
-        vec3 normalSphere = normalize(mat3(model) * aNormal);;
+        normalSphere = normalize(mat3(model) * aNormal);;
     }else{
         //asumir es una esfera, la normal es desde el centro 0,0 hasta el punto
-        vec3 normalSphere = normalize(mat3(model) * aPos);
+        normalSphere = normalize(mat3(model) * aPos);
     }
     
     //ambiental

@@ -77,16 +77,20 @@ int main()
     shader_utils::setUpShaders(lightShader,"lighting.shader","fragment.shader");
 
     Sphere sphere;
-    sphere.generateSphere(3);
+    sphere.generateSphere(4);
     sphere.setShaders(lightShader);
     sphere.setUniformColor(glm::vec3(0.7,0.45,0.1));
 
     Lighting light;
-    light.setSourceColor(glm::vec3(1.0f,1.0f,1.0f),lightShader);
-    light.setPosition(glm::vec3(0,0,-3));
+    glm::vec3 lightColor = glm::vec3(1.0f,1.0f,1.0f);
+    glm::vec3 lightPos = glm::vec3(0,0,-3);
+    glm::vec3 cameraPos = glm::vec3(0,0,-3);
 
-    light.applyPhong(0.4f,glm::vec3(0,0,-3),lightShader);
-    //light.applyPhongByFace(sphere.vertices,0.3f,glm::vec3(0,0,-3),lightShader);
+    light.setSourceColor(lightColor,lightShader);
+    light.setPosition(lightPos);
+
+    //light.applyPhong(0.4f,glm::vec3(0,0,-3),lightShader);
+    //light.applyPhongByFace(sphere.vertices,sphere.indexData,0.3f,cameraPos,lightShader);
 
     sphere.instantiate();
 

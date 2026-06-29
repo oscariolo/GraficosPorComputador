@@ -19,7 +19,7 @@ class Lighting{
 
         void applyPhong(float ambientStrenght, glm::vec3 cameraPos, unsigned int shaderID);
 
-        void applyPhongByFace(std::vector<Vertex>& vertices, float ambientStrenght, glm::vec3 cameraPos, unsigned int shaderID);
+        void applyPhongByFace(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indexData, float ambientStrenght, glm::vec3 cameraPos, unsigned int shaderID);
 
         
 
