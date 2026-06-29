@@ -14,7 +14,7 @@ uniform vec3 cameraPos = vec3(1.0f);
 
 out vec3 ourColor;
 
-float specularStrength = 0.5;
+float specularStrength = 0.5f;
 
 void main()
 {

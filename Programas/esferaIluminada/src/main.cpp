@@ -91,14 +91,15 @@ int main()
     shader_utils::setUpShaders(lightShader,"lighting.shader","fragment.shader");
 
     Sphere sphere;
-    sphere.generateSphere(4);
+    sphere.generateSphere(6);
     sphere.setShaders(lightShader);
     sphere.setUniformColor(glm::vec3(0.7,0.45,0.1));
 
     Lighting light;
     glm::vec3 lightColor = glm::vec3(1.0f,1.0f,1.0f);
-    glm::vec3 lightPos = glm::vec3(0,0,-3);
-    glm::vec3 cameraPos = glm::vec3(0,0,-3);
+    glm::vec3 lightPos = glm::vec3(1,1,-3);
+    glm::vec3 cameraPos = glm::vec3(1,2,-3);
+    float ambientStrenght = 0.3f;
 
     light.setSourceColor(lightColor,lightShader);
     light.setPosition(lightPos);
@@ -115,7 +116,7 @@ int main()
         
         accumulator += deltaTime;
 
-        light.applyPhong(0.4f,cameraPos,lightShader,normalByFace);
+        light.applyPhong(ambientStrenght,cameraPos,lightShader,normalByFace);
 
         // Only update and render if enough time has passed
         while(accumulator >= timePerFrame) {
