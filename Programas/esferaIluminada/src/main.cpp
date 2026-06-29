@@ -10,9 +10,13 @@
 #include <math.h>
 #include <chrono>
 #include <classes/Sphere.h>
+#include <classes/Transform.h>
+#include <classes/Lighting.h>
+
+#include <classes/Cube.h>
 
 
-const int VIEWPORT_SIZE[] = {1280,720};
+const int VIEWPORT_SIZE[] = {720,720};
 
 bool wireframeMode = false;
 
@@ -34,25 +38,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 
-void setUpShaders(unsigned int &shaders)
-{
-    unsigned int vertexShader;
-    shader_utils::sourceShader("vertex.shader",vertexShader,GL_VERTEX_SHADER);
-
-    unsigned int fragmentShader;
-    shader_utils::sourceShader("fragment.shader",fragmentShader,GL_FRAGMENT_SHADER);
-
-    shaders = glCreateProgram();
-    glAttachShader(shaders,vertexShader);
-    glAttachShader(shaders,fragmentShader);
-    glLinkProgram(shaders);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-}
-
-
 int main()
 {
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -84,22 +72,35 @@ int main()
     const double timePerFrame = 1.0 / FPS;
     double accumulator = 0.0;
     auto lastTime = std::chrono::steady_clock::now();
-    
-
-    
+     
     unsigned int shaders;
-    setUpShaders(shaders);
-    Sphere sphere;
-    sphere.setShaders(shaders);
+    shader_utils::setUpShaders(shaders,"vertex.shader","fragment.shader");
 
+    Sphere sphere;
     sphere.generateSphere();
+    std::cout << "esfera generada";
+
+    sphere.setShaders(shaders);
+    sphere.setUniformColor(glm::vec3(0.7,0.45,0.1));
 
     sphere.instantiate();
 
+    Lighting light;
+    light.setPosition(glm::vec3(1,1,-1));
     
+    light.applyAmbient(0.5,shaders);
+    light.applyDiffuse(shaders);
+    light.applySpecular(glm::vec3(0,0,-1),shaders);
 
+    //Test cube
+    Cube cube;
+    cube.generateCube();
+    cube.setShaders(shaders);
+    cube.instantiate();
+    cube.setUniformColor(glm::vec3(0.7,0.45,0.1));
+    Transform::rotate(cube.model,glm::vec3(0,1,0),glm::radians(45.0f));
+    Transform::rotate(cube.model,glm::vec3(1,0,0),glm::radians(22.5f));
     glEnable(GL_DEPTH_TEST); //Para considerar profundidad en z en el renderizado
-
     //Render Loop
     while(!glfwWindowShouldClose(window))
     {
@@ -116,8 +117,10 @@ int main()
             
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
+
+            Transform::rotate(sphere.model,glm::vec3(0,1,0),1.0f);
             sphere.draw();
+            //cube.draw();
 
             glfwSwapBuffers(window);
 

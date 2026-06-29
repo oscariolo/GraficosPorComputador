@@ -36,7 +36,7 @@ inline void checkShaderCompilation(unsigned int shader)
     }
 }
 
-inline void sourceShader(const char* name,unsigned int &shader, GLenum shaderType)
+void sourceShader(const char* name,unsigned int &shader, GLenum shaderType)
 {
     const char* typeStr = (shaderType == GL_VERTEX_SHADER) ? "vertex" : "fragment";
     //Use the runtime working directory (where the program is executed from)
@@ -46,6 +46,22 @@ inline void sourceShader(const char* name,unsigned int &shader, GLenum shaderTyp
     glShaderSource(shader,1,&shaderSource,NULL);
     glCompileShader(shader);
     checkShaderCompilation(shader);
+}
+
+inline void setUpShaders(unsigned int &shaders , const char* vertexShaderfile, const char* fragmentShaderfile)
+{
+    unsigned int vertexShader;
+    sourceShader("vertex.shader",vertexShader,GL_VERTEX_SHADER);
+
+    unsigned int fragmentShader;
+    sourceShader("fragment.shader",fragmentShader,GL_FRAGMENT_SHADER);
+
+    shaders = glCreateProgram();
+    glAttachShader(shaders,vertexShader);
+    glAttachShader(shaders,fragmentShader);
+    glLinkProgram(shaders);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 }
 
 } // namespace shader_utils

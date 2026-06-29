@@ -1,13 +1,17 @@
 #ifndef VERTEX_H
 #define VERTEX_H
-struct Vertex{
+#include <glm/glm.hpp>
+class Vertex{
 
-    float position[3];
-    float color[3];
-    float normal[3];
+    public: 
+        glm::vec3 position;
+        glm::vec3 color;
+        glm::vec3 normal;
 
-    Vertex(float position[3]);
-    Vertex(float px, float py, float pz);
+        Vertex();
+        Vertex(float position[3]);
+        Vertex(float px, float py, float pz);
+        void setNormal(float x, float y, float z);
 
 };
 
