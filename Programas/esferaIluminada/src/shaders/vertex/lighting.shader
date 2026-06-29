@@ -15,6 +15,10 @@ uniform vec3 cameraPos = vec3(1.0f);
 out vec3 ourColor;
 
 float specularStrength = 0.5f;
+float shininess = 32.0f;
+float constant = 1.0f;
+float linear = 0.09f;
+float quadratic = 0.032f;
 
 void main()
 {
@@ -47,9 +51,15 @@ void main()
     vec3 viewDir = normalize(cameraPos - FragPos);
     vec3 reflectDir = reflect(-lightDir,normalSphere);
 
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     vec3 specular = specularStrength * spec * lightColor;  
+    //atenuacion por distancia
 
+    float distance = length(lightSource - FragPos);
+    float attenuation = 1.0 / (constant + linear * distance + quadratic * distance * distance);
+
+    diffuse *= attenuation;
+    specular *= attenuation;
 
     //phong
     vec3 result = (ambientLight  + diffuse + specular) * aColor;
