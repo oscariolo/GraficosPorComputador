@@ -17,11 +17,7 @@ class Lighting{
         void applyDiffuse(unsigned int shaderID);
         void applySpecular(glm::vec3 cameraPos, unsigned int shaderID);
 
-        void applyPhong(float ambientStrenght, glm::vec3 cameraPos, unsigned int shaderID);
-
-        void applyPhongByFace(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indexData, float ambientStrenght, glm::vec3 cameraPos, unsigned int shaderID);
-
-        
+        void applyPhong(float ambientStrenght, glm::vec3 cameraPos, unsigned int shaderID, bool lightingByFace = false);
 
 
 };

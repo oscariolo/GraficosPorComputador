@@ -83,8 +83,9 @@ void Sphere::generateSphere(unsigned int numSubdivisions) {
         
         currentIndices = nextIndices;
     }
-
     // Transferir índices finales a la clase
     this->indexData = currentIndices;
+
+    calculateNormals();
 
 }

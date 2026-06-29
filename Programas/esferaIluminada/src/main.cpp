@@ -20,7 +20,7 @@ const int VIEWPORT_SIZE[] = {720,720};
 
 bool wireframeMode = false;
 
-bool renderWithGPU = false; // true for CPU, false for GPU
+bool normalByFace = false; 
 
 glm::vec3 focusAxis = {1,0,0};
 
@@ -33,7 +33,21 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);    
+    glfwSetWindowShouldClose(window, true);
+    
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
+    {
+        wireframeMode = !wireframeMode;
+        glPolygonMode(GL_FRONT_AND_BACK, wireframeMode ? GL_LINE : GL_FILL);
+    }
+
+    if (key == GLFW_KEY_N && action == GLFW_PRESS)
+    {
+        normalByFace = !normalByFace;
+        std::cout << "Normal by face: " << (normalByFace ? "ON" : "OFF") << std::endl;
+    }
+
+
 
 }
 
@@ -89,9 +103,6 @@ int main()
     light.setSourceColor(lightColor,lightShader);
     light.setPosition(lightPos);
 
-    //light.applyPhong(0.4f,glm::vec3(0,0,-3),lightShader);
-    //light.applyPhongByFace(sphere.vertices,sphere.indexData,0.3f,cameraPos,lightShader);
-
     sphere.instantiate();
 
     glEnable(GL_DEPTH_TEST); //Para considerar profundidad en z en el renderizado
@@ -103,6 +114,8 @@ int main()
         lastTime = currentTime;
         
         accumulator += deltaTime;
+
+        light.applyPhong(0.4f,cameraPos,lightShader,normalByFace);
 
         // Only update and render if enough time has passed
         while(accumulator >= timePerFrame) {
