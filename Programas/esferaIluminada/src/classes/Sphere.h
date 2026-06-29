@@ -6,7 +6,7 @@
 class Sphere : public Polyhedron {
     // Class definition
     public:
-    void generateSphere();
+    void generateSphere(unsigned int numSubdivisions = 5);
 
 };
 

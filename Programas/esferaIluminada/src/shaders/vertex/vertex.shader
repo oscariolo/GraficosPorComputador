@@ -13,7 +13,7 @@ uniform vec3 cameraPos = vec3(1.0f);
 
 out vec3 ourColor;
 
-float specularStrength = 4;
+float specularStrength = 0.5;
 
 void main()
 {
@@ -46,7 +46,7 @@ void main()
 
 
     //phong
-    vec3 result = (ambientLight + diffuse + specular) * aColor;
+    vec3 result = (ambientLight  + diffuse + specular) * aColor;
 
     ourColor = result;
 

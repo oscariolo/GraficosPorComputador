@@ -77,29 +77,18 @@ int main()
     shader_utils::setUpShaders(shaders,"vertex.shader","fragment.shader");
 
     Sphere sphere;
-    sphere.generateSphere();
-    std::cout << "esfera generada";
-
+    sphere.generateSphere(5);
     sphere.setShaders(shaders);
     sphere.setUniformColor(glm::vec3(0.7,0.45,0.1));
-
     sphere.instantiate();
 
     Lighting light;
-    light.setPosition(glm::vec3(1,1,-1));
+    light.setPosition(glm::vec3(0,0,-3));
     
     light.applyAmbient(0.5,shaders);
     light.applyDiffuse(shaders);
-    light.applySpecular(glm::vec3(0,0,-1),shaders);
+    light.applySpecular(glm::vec3(0,0,-3),shaders);
 
-    //Test cube
-    Cube cube;
-    cube.generateCube();
-    cube.setShaders(shaders);
-    cube.instantiate();
-    cube.setUniformColor(glm::vec3(0.7,0.45,0.1));
-    Transform::rotate(cube.model,glm::vec3(0,1,0),glm::radians(45.0f));
-    Transform::rotate(cube.model,glm::vec3(1,0,0),glm::radians(22.5f));
     glEnable(GL_DEPTH_TEST); //Para considerar profundidad en z en el renderizado
     //Render Loop
     while(!glfwWindowShouldClose(window))
@@ -118,7 +107,7 @@ int main()
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            Transform::rotate(sphere.model,glm::vec3(0,1,0),1.0f);
+            Transform::rotate(sphere.model,glm::vec3(0,1,0),0.5f);
             sphere.draw();
             //cube.draw();
 
@@ -127,8 +116,6 @@ int main()
             accumulator -= timePerFrame;
 
         }
-
-
     }
 
     glfwTerminate();
